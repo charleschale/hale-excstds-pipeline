@@ -1,0 +1,22 @@
+EVALUATE
+VAR _Key = "{KEY3}"
+RETURN
+CALCULATETABLE(
+  SELECTCOLUMNS(
+    FILTER('Answers', 'Answers'[Key3] = _Key),
+    "QuestionNmbr",  'Answers'[QuestionNmbr],
+    "Answer",        'Answers'[Answer],
+    "L1_Num",        RELATED('Questions'[L1_Num]),
+    "L1_Title",      LOOKUPVALUE('dim_L1L2'[L1_Title], 'dim_L1L2'[L2_Num], RELATED('Questions'[L2_Num])),
+    "L2_Short",      LOOKUPVALUE('dim_L1L2'[L2_Short], 'dim_L1L2'[L2_Num], RELATED('Questions'[L2_Num])),
+    "IOU",           RELATED('Questions'[IOU]),
+    "_Polarity",     RELATED('Questions'[_Polarity]),
+    "RightNum",      RELATED('Questions'[RightNum]),
+    "IsActive",      RELATED('Questions'[IsActive]),
+    "IsScored",      RELATED('Questions'[IsScored]),
+    "Impact_Rank",   [Impact.Rank|Q],
+    "Teach_Rank",    [Teach.Rank|Q],
+    "Z_Delta",       [Z|Delta A-H|@Q]
+  )
+)
+ORDER BY [Z_Delta] ASC

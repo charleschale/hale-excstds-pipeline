@@ -1,0 +1,27 @@
+EVALUATE
+CALCULATETABLE(
+  ROW(
+    "Z_Algo_Overall",         [Z|Algo],
+    "Z_Human_Overall",        [Z|Human],
+    "RF_Num",                 [RF#],
+    "Questions_Answered",     COUNTROWS('Answers'),
+
+    "Flag_DreamTeam",         [Flag9.DreamTeam],
+    "Flag_UnconditBelief",    [Flag10.UnconditBelief],
+    "Flag_HoldsAvgDown",      [Flag.10.HoldsAvgDown],
+    "Flag_Eyes",              [Flag.11.Eyes],
+    "Flag_ExecsCantDoJob",    [Flag.12 Execs Cant Do Job],
+    "Flag_UncommonInit",      [FlagPos1.UncommonInitiative],
+    "Flag_ResistsMediocrity", [FlagPos2.ResistsMediocrity],
+    "Flag_ExecutionDriven",   [FlagPos3.ExecutionDriven],
+    "Flag_SatVsGripes",       [Flag.1.SatVsGripes],
+    "Flag_SatAvg",            [Flag.2.Sat.Avg],
+    "Flag_UnsatCsDs",         [Flag.3.UnsatCsDs],
+    "Flag_StdsVsSelf",        [Flag.4.StdsVsSelf],
+    "Flag_InitiatingAcctblty",[Score5Flag.8.InitiatingAccountability],
+    "Flag_PlsVsSat",          [Score5Flag5.PlsVsSat],
+    "Flag_ClarityAcctblty",   [Score5Flag6.ClarityAttcblty],
+    "Flag_DrivingAcctblty",   [Score5Flag6.DrivingAttcblty]
+  ),
+  'Lkup_Key'[Key3] = "{KEY3}"
+)

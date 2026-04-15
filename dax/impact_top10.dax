@@ -1,0 +1,23 @@
+EVALUATE
+VAR _Key = "{KEY3}"
+RETURN
+CALCULATETABLE(
+  FILTER(
+    SELECTCOLUMNS(
+      FILTER('Questions', 'Questions'[IsActive] = 1 && 'Questions'[IsScored] = 1),
+      "L1_Title",     LOOKUPVALUE('dim_L1L2'[L1_Title], 'dim_L1L2'[L2_Num], 'Questions'[L2_Num]),
+      "Impact_Rank",  [Impact.Rank|Q],
+      "QuestionNmbr", 'Questions'[QuestionNmbr],
+      "QuestionText", 'Questions'[QuestionText],
+      "AnswerRange",  'Questions'[AnswerRange],
+      "Answer",       [Answer|],
+      "RightNum",     'Questions'[RightNum],
+      "Commentary",   'Questions'[Commentary],
+      "TargetBehavior",'Questions'[TargetBehavior],
+      "TopQ",         [TopQ]
+    ),
+    NOT ISBLANK([Impact_Rank]) && [Impact_Rank] <= 10 && [Impact_Rank] <> 0
+  ),
+  'Lkup_Key'[Key3] = _Key
+)
+ORDER BY [Impact_Rank]

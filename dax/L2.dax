@@ -1,0 +1,15 @@
+EVALUATE
+CALCULATETABLE(
+  SUMMARIZECOLUMNS(
+    'dim_L1L2'[L1_Num],
+    'dim_L1L2'[L1_Title],
+    'dim_L1L2'[L2_Num],
+    'dim_L1L2'[L2_Short],
+    "Score5_filtered", [Score5_filtered],
+    "Question_Count",  COUNTROWS('Questions')
+  ),
+  'Lkup_Key'[Key3] = "{KEY3}",
+  'Questions'[IsActive] = 1,
+  'Questions'[IsScored] = 1
+)
+ORDER BY 'dim_L1L2'[L1_Num], 'dim_L1L2'[L2_Num]
