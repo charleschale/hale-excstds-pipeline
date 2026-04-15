@@ -149,22 +149,47 @@ def fetch_text_answers(key3: str) -> list[dict[str, Any]]:
 def ping() -> dict[str, Any]:
     """Minimal connectivity + schema probe for debugging.
 
-    Returns the row count of Lkup_Key and the columns on both tables.
-    Used by diagnostic endpoints; not called in the normal pull flow.
+    Lists all tables in the database and attempts to fingerprint the two
+    we care about (lookup + non-scorable answers). Doesn't assume specific
+    table names — used to discover them on first setup.
     """
     with _connect() as conn:
         with conn.cursor() as cur:
-            cur.execute("SELECT COUNT(*) AS n FROM `Lkup_Key`")
-            lkup_count = cur.fetchone()
-            cur.execute("DESCRIBE `Lkup_Key`")
-            lkup_columns = [r["Field"] for r in cur.fetchall()]
-            try:
-                cur.execute("DESCRIBE `Answers_Non-Scorable`")
-                ans_columns = [r["Field"] for r in cur.fetchall()]
-            except pymysql.err.ProgrammingError as exc:
-                ans_columns = [f"ERROR: {exc}"]
+            cur.execute("SHOW TABLES")
+            rows = cur.fetchall()
+            # SHOW TABLES returns a dict with one key like "Tables_in_dbname"
+            table_names = [list(r.values())[0] for r in rows]
+
+            # Heuristic: find tables likely to be Lkup_Key and Non-Scorable
+            lkup_candidates = [t for t in table_names if "lkup" in t.lower() or "lookup" in t.lower() or "key" in t.lower()]
+            ans_candidates = [t for t in table_names if "answer" in t.lower() or "non" in t.lower() or "scorab" in t.lower()]
+
+            # If we have a likely lookup table, count its rows and dump columns
+            lkup_info: dict[str, Any] = {"candidates": lkup_candidates}
+            if lkup_candidates:
+                try:
+                    first = lkup_candidates[0]
+                    cur.execute(f"SELECT COUNT(*) AS n FROM `{first}`")
+                    lkup_info["row_count"] = cur.fetchone()["n"]
+                    cur.execute(f"DESCRIBE `{first}`")
+                    lkup_info["columns"] = [r["Field"] for r in cur.fetchall()]
+                    lkup_info["probed_name"] = first
+                except Exception as exc:  # noqa: BLE001
+                    lkup_info["probe_error"] = str(exc)
+
+            ans_info: dict[str, Any] = {"candidates": ans_candidates}
+            if ans_candidates:
+                try:
+                    first = ans_candidates[0]
+                    cur.execute(f"DESCRIBE `{first}`")
+                    ans_info["columns"] = [r["Field"] for r in cur.fetchall()]
+                    ans_info["probed_name"] = first
+                except Exception as exc:  # noqa: BLE001
+                    ans_info["probe_error"] = str(exc)
+
     return {
-        "Lkup_Key_rows": lkup_count["n"] if lkup_count else 0,
-        "Lkup_Key_columns": lkup_columns,
-        "Answers_Non-Scorable_columns": ans_columns,
+        "all_tables": table_names,
+        "total_tables": len(table_names),
+        "lkup_probe": lkup_info,
+        "answers_probe": ans_info,
     }
