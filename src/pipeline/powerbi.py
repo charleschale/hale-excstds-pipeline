@@ -76,16 +76,28 @@ def execute_dax(dax: str, *, timeout: int = 90) -> list[dict[str, Any]]:
 
     The first (and only) table in the response is returned. If the query
     returns no tables, an empty list is returned.
+
+    When PBI_IMPERSONATED_USER env var is set, its value is sent as
+    impersonatedUserName in the request body. This is REQUIRED when calling
+    executeQueries with a service principal against a dataset that has
+    row-level security (RLS) configured — without it, Power BI returns
+    401 PowerBINotAuthorizedException even when the SP is a workspace
+    admin. The value should be the UPN (email) of a user with access to
+    the dataset.
     """
     workspace = _require_env("PBI_WORKSPACE_ID")
     dataset = _require_env("PBI_DATASET_ID")
     token = _acquire_token()
 
     url = EXECUTE_QUERIES_URL.format(workspace=workspace, dataset=dataset)
-    body = {
+    body: dict[str, Any] = {
         "queries": [{"query": dax}],
         "serializerSettings": {"includeNulls": True},
     }
+    impersonated = os.getenv("PBI_IMPERSONATED_USER")
+    if impersonated:
+        body["impersonatedUserName"] = impersonated
+
     headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
 
     log.debug("POST %s (dax %d chars)", url, len(dax))
@@ -193,11 +205,17 @@ def diagnostic_ping() -> dict[str, Any]:
         out["list_datasets_error"] = str(exc)
 
     # Can we execute a trivial query? This is the actual capability we need.
+    # Includes impersonatedUserName when configured — required for RLS.
+    body: dict[str, Any] = {"queries": [{"query": "EVALUATE ROW(\"ping\", 1)"}]}
+    impersonated = os.getenv("PBI_IMPERSONATED_USER")
+    if impersonated:
+        body["impersonatedUserName"] = impersonated
+        out["impersonated_user"] = impersonated
     try:
         r = requests.post(
             f"https://api.powerbi.com/v1.0/myorg/groups/{workspace}/datasets/{dataset}/executeQueries",
             headers={**headers, "Content-Type": "application/json"},
-            json={"queries": [{"query": "EVALUATE ROW(\"ping\", 1)"}]},
+            json=body,
             timeout=30,
         )
         out["trivial_query_status"] = r.status_code

@@ -17,6 +17,8 @@ services:
         sync: false
       - key: PBI_DATASET_ID
         sync: false
+      - key: PBI_IMPERSONATED_USER
+        sync: false
       - key: MYSQL_HOST
         sync: false
       - key: MYSQL_PORT
