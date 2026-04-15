@@ -1,46 +1,39 @@
-"""HTTP client for haleglobal.com/excellence_export.php.
+"""MySQL client for the Excellence Standards database.
 
-The PHP endpoint returns CSV for three tables: Lkup_Key, scores, text. We use
-it to pull respondent metadata and non-scorable answers — the computed
-scoring lives in Power BI, not here.
+Replaces the earlier HTTP-to-excellence_export.php approach because
+SiteGround's sgcaptcha was challenging Render's IPs and returning HTML
+redirect pages instead of CSV. Direct MySQL is simpler, faster (no CSV
+parsing, server-side WHERE), and reuses the existing MySQL Remote Access
+whitelist flow.
 
 Environment variables required:
-    EXCSTDS_EXPORT_BASE   - Default: https://haleglobal.com/excellence_export.php
-    EXCSTDS_EXPORT_TOKEN  - Auth token (passed as a query parameter)
+    MYSQL_HOST          - haleglobal.com (or IP)
+    MYSQL_PORT          - defaults to 3306
+    MYSQL_DATABASE      - e.g. dbzyh4pyqfo0dq
+    MYSQL_USER          - database user
+    MYSQL_PASSWORD      - database password
 
-The token is a query parameter in the upstream design, not a header. This is
-a known weakness of the upstream endpoint but changing it is out of scope
-for this pipeline.
+Tables this module reads (but never writes):
+    Lkup_Key                - respondent index (columns: Key, HashKey, Key3,
+                              Email, Name, Date, Survey, SuccessFlag, Domain)
+    Answers_Non-Scorable    - free-text / non-scored answers per respondent
+                              (Key3, QuestionNmbr, Answer, and optionally a
+                              memo/date column)
+
+All queries filter server-side by Key3. We never download full tables — a
+departure from the PHP-endpoint approach that made us pull ~5 MB per run.
 """
 
 from __future__ import annotations
 
-import csv
-import io
 import logging
 import os
-from typing import Any, Iterable
+from typing import Any
 
-import requests
+import pymysql
+from pymysql.cursors import DictCursor
 
 log = logging.getLogger(__name__)
-
-DEFAULT_BASE = "https://haleglobal.com/excellence_export.php"
-
-VALID_TABLES = frozenset({"Lkup_Key", "scores", "text"})
-
-# haleglobal.com's WAF returns 403 to requests from Python's default
-# User-Agent. Send a realistic UA so the request is accepted. This value
-# rotates occasionally; keep it close to a real browser or a common
-# HTTP client like curl. Anything but "python-requests/..." works today.
-_REQUEST_HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-        "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
-    ),
-    "Accept": "text/csv, text/plain, */*",
-    "Accept-Language": "en-US,en;q=0.9",
-}
 
 
 class ExcStdsConfigError(RuntimeError):
@@ -48,79 +41,7 @@ class ExcStdsConfigError(RuntimeError):
 
 
 class ExcStdsFetchError(RuntimeError):
-    """Raised when the PHP endpoint returns a non-2xx response."""
-
-
-def _config() -> tuple[str, str]:
-    base = os.getenv("EXCSTDS_EXPORT_BASE", DEFAULT_BASE)
-    token = os.getenv("EXCSTDS_EXPORT_TOKEN")
-    if not token:
-        raise ExcStdsConfigError("Missing required env var: EXCSTDS_EXPORT_TOKEN")
-    return base, token
-
-
-def fetch_table(table: str, *, timeout: int = 60) -> list[dict[str, str]]:
-    """Fetch a full table from the export endpoint as a list of dicts.
-
-    The endpoint does not support server-side filtering by Key3; the full
-    table is returned and callers filter client-side. Sizes observed in
-    April 2026: Lkup_Key ~170 KB, scores ~4.5 MB, text ~900 KB.
-    """
-    if table not in VALID_TABLES:
-        raise ValueError(f"Unknown table: {table!r}. Allowed: {sorted(VALID_TABLES)}")
-    base, token = _config()
-    params = {"token": token, "table": table}
-    log.debug("GET %s table=%s", base, table)
-    resp = requests.get(
-        base,
-        params=params,
-        timeout=timeout,
-        allow_redirects=True,
-        headers=_REQUEST_HEADERS,
-    )
-    if not resp.ok:
-        raise ExcStdsFetchError(f"{base} table={table} returned {resp.status_code}")
-    reader = csv.DictReader(io.StringIO(resp.text))
-    rows = list(reader)
-    if not rows:
-        # Don't just return empty — record enough context to diagnose why.
-        # This has been the single most painful failure mode: 200 OK but the
-        # body is HTML (challenge page), JSON (error), or empty.
-        raise ExcStdsFetchError(
-            f"{base} table={table} returned 200 but 0 rows parsed. "
-            f"content_type={resp.headers.get('Content-Type')!r} "
-            f"bytes={len(resp.content)} "
-            f"final_url={resp.url!r} "
-            f"body_preview={resp.text[:300]!r}"
-        )
-    return rows
-
-
-def filter_by_key3(rows: Iterable[dict[str, Any]], key3: str) -> list[dict[str, Any]]:
-    """Client-side filter — the PHP endpoint doesn't support WHERE clauses."""
-    return [row for row in rows if row.get("Key3") == key3]
-
-
-def lookup_respondent(key3: str) -> dict[str, str] | None:
-    """Return the Lkup_Key row for a Key3, or None if not found.
-
-    Logs diagnostic info on miss so we can distinguish "endpoint returned
-    nothing" from "endpoint returned data but no match."
-    """
-    rows = fetch_table("Lkup_Key")
-    log.info("Lkup_Key returned %d rows", len(rows))
-    if rows:
-        sample_columns = list(rows[0].keys())
-        log.info("Lkup_Key columns: %s", sample_columns)
-        # Is our target there by substring (to catch whitespace / case issues)?
-        needle = key3.lower()
-        hits = [r.get("Key3") for r in rows if needle in str(r.get("Key3", "")).lower()]
-        if hits:
-            log.info("Found %d rows containing %r: first=%r", len(hits), needle, hits[0])
-    for row in rows:
-        if row.get("Key3") == key3:
-            return row
-    return None
+    """Raised when a query fails or returns unexpected shape."""
 
 
 class RespondentLookupDiagnostic(RuntimeError):
@@ -129,36 +50,121 @@ class RespondentLookupDiagnostic(RuntimeError):
     404 response so the caller can see what actually happened."""
 
 
-def lookup_respondent_or_diagnose(key3: str) -> dict[str, str]:
-    """Wrap lookup_respondent with a diagnostic exception on miss."""
-    rows = fetch_table("Lkup_Key")
-    for row in rows:
-        if row.get("Key3") == key3:
-            return row
-    # Miss — build diagnostic payload
-    sample_key3s = [r.get("Key3") for r in rows[:3]]
-    needle = key3.lower()
-    hits = [r.get("Key3") for r in rows if needle in str(r.get("Key3", "")).lower()]
+def _require_env(name: str) -> str:
+    value = os.getenv(name)
+    if not value:
+        raise ExcStdsConfigError(f"Missing required env var: {name}")
+    return value
+
+
+def _connect() -> pymysql.connections.Connection:
+    """Open a short-lived MySQL connection using env-var config.
+
+    Caller is responsible for closing. Uses DictCursor so query results
+    come back as dicts rather than tuples.
+    """
+    host = _require_env("MYSQL_HOST")
+    user = _require_env("MYSQL_USER")
+    password = _require_env("MYSQL_PASSWORD")
+    database = _require_env("MYSQL_DATABASE")
+    port = int(os.getenv("MYSQL_PORT", "3306"))
+    return pymysql.connect(
+        host=host,
+        user=user,
+        password=password,
+        database=database,
+        port=port,
+        charset="utf8mb4",
+        cursorclass=DictCursor,
+        connect_timeout=10,
+        read_timeout=30,
+        write_timeout=30,
+    )
+
+
+def lookup_respondent(key3: str) -> dict[str, Any] | None:
+    """Return the Lkup_Key row for a Key3, or None if not found."""
+    sql = "SELECT * FROM `Lkup_Key` WHERE `Key3` = %s LIMIT 1"
+    with _connect() as conn:
+        with conn.cursor() as cur:
+            cur.execute(sql, (key3,))
+            row = cur.fetchone()
+    return row
+
+
+def lookup_respondent_or_diagnose(key3: str) -> dict[str, Any]:
+    """Wrap lookup_respondent with a diagnostic exception on miss.
+
+    The diagnostic includes row counts and a sample of Key3 values in the
+    table so we can distinguish (a) table empty, (b) table populated but
+    no match for this specific Key3 — probably a typo.
+    """
+    hit = lookup_respondent(key3)
+    if hit is not None:
+        return hit
+
+    # Miss — gather diagnostic context
+    with _connect() as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT COUNT(*) AS n FROM `Lkup_Key`")
+            total = cur.fetchone()
+            total_rows = total["n"] if total else 0
+            cur.execute("SELECT `Key3` FROM `Lkup_Key` ORDER BY `Date` DESC LIMIT 5")
+            recent = [r["Key3"] for r in cur.fetchall()]
+            # Substring search to catch whitespace / case issues
+            cur.execute(
+                "SELECT `Key3` FROM `Lkup_Key` WHERE LOWER(`Key3`) LIKE %s LIMIT 5",
+                (f"%{key3.lower()}%",),
+            )
+            hits = [r["Key3"] for r in cur.fetchall()]
+
     detail = (
-        f"Key3 {key3!r} not found. fetched {len(rows)} rows from Lkup_Key. "
-        f"columns={list(rows[0].keys()) if rows else []}. "
-        f"first 3 Key3 values={sample_key3s}. "
-        f"substring hits on {needle!r}={hits[:5]}"
+        f"Key3 {key3!r} not found in Lkup_Key. "
+        f"total_rows={total_rows} "
+        f"recent_key3s={recent} "
+        f"substring_matches={hits}"
     )
     raise RespondentLookupDiagnostic(detail)
 
 
-def fetch_text_answers(key3: str) -> list[dict[str, str]]:
-    """Return only the non-scorable answers for a single respondent."""
-    rows = fetch_table("text")
-    return filter_by_key3(rows, key3)
+def fetch_text_answers(key3: str) -> list[dict[str, Any]]:
+    """Return non-scorable answers for one respondent.
 
-
-def fetch_scored_answers(key3: str) -> list[dict[str, str]]:
-    """Return only the scored (1-5) answers for a single respondent.
-
-    Mostly redundant with the Power BI 'skinny' pull, which also includes
-    Impact/Teach ranks and Z_Delta. Kept for corroboration / debugging.
+    Reads the Answers_Non-Scorable table (the PowerBI model's name for
+    the table also exposed as `text` via the PHP endpoint). Server-side
+    filtered by Key3.
     """
-    rows = fetch_table("scores")
-    return filter_by_key3(rows, key3)
+    sql = (
+        "SELECT * FROM `Answers_Non-Scorable` "
+        "WHERE `Key3` = %s "
+        "ORDER BY `QuestionNmbr`"
+    )
+    with _connect() as conn:
+        with conn.cursor() as cur:
+            cur.execute(sql, (key3,))
+            rows = list(cur.fetchall())
+    return rows
+
+
+def ping() -> dict[str, Any]:
+    """Minimal connectivity + schema probe for debugging.
+
+    Returns the row count of Lkup_Key and the columns on both tables.
+    Used by diagnostic endpoints; not called in the normal pull flow.
+    """
+    with _connect() as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT COUNT(*) AS n FROM `Lkup_Key`")
+            lkup_count = cur.fetchone()
+            cur.execute("DESCRIBE `Lkup_Key`")
+            lkup_columns = [r["Field"] for r in cur.fetchall()]
+            try:
+                cur.execute("DESCRIBE `Answers_Non-Scorable`")
+                ans_columns = [r["Field"] for r in cur.fetchall()]
+            except pymysql.err.ProgrammingError as exc:
+                ans_columns = [f"ERROR: {exc}"]
+    return {
+        "Lkup_Key_rows": lkup_count["n"] if lkup_count else 0,
+        "Lkup_Key_columns": lkup_columns,
+        "Answers_Non-Scorable_columns": ans_columns,
+    }

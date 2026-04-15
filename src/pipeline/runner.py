@@ -1,10 +1,10 @@
 """Orchestrator — Key3 in, xlsx bytes out.
 
-Calls Power BI for the 6 scored queries, the excellence_export.php endpoint
-for respondent metadata and non-scorable text answers, and assembles
-everything into one xlsx workbook.
+Calls Power BI for the 6 scored queries and the Excellence Standards
+MySQL database for respondent metadata and non-scorable text answers,
+then assembles everything into one xlsx workbook.
 
-Runs queries in parallel with a thread pool — executeQueries is I/O bound.
+Runs queries in parallel with a thread pool — both upstreams are I/O bound.
 """
 
 from __future__ import annotations

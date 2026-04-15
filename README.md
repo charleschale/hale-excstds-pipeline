@@ -6,11 +6,10 @@ This service is the automation of what was previously a manual DAX Studio workfl
 
 ## Architecture
 
-Three data sources, one output:
+Two data sources, one output:
 
 - **Power BI `executeQueries` REST API** — scored measures (L1/L2/Flags/Skinny/Impact Top-10/Teach Top-10). The scoring algorithm lives in the Power BI DAX measures; we don't reimplement it.
-- **`excellence_export.php?table=text`** — non-scorable text answers (Q76, Q104-114, Q9911+ series).
-- **`excellence_export.php?table=Lkup_Key`** — respondent metadata and Key3 validation.
+- **Excellence Standards MySQL database** (`Lkup_Key` and `Answers_Non-Scorable` tables) — respondent metadata, Key3 validation, and non-scorable text answers. Accessed via direct MySQL connection; Render's outbound IPs must be whitelisted in SiteGround's MySQL Remote Access panel (`74.220.48.0/24` and `74.220.56.0/24`). Earlier versions of this pipeline hit `haleglobal.com/excellence_export.php` over HTTP, but SiteGround's sgcaptcha WAF blocked Render's IPs — direct MySQL sidesteps that entirely.
 
 Output is one xlsx with the tabs `L1`, `L2`, `Flags`, `Skinny`, `ImpactTop10`, `TeachTop10`, `Non-Scorable`, `Metadata`.
 
