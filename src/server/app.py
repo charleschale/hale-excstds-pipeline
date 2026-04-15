@@ -20,6 +20,7 @@ from fastapi.responses import Response
 from pydantic import BaseModel, Field
 
 from pipeline.excstds_api import ping as excstds_ping
+from pipeline.powerbi import diagnostic_ping as powerbi_ping
 from pipeline.runner import RespondentNotFound, pull_respondent
 
 log = logging.getLogger(__name__)
@@ -54,6 +55,22 @@ def _check_auth(authorization: str | None) -> None:
 def healthz() -> dict[str, str]:
     """Liveness probe for Render."""
     return {"status": "ok"}
+
+
+@app.get("/v1/powerbi-ping")
+def powerbi_ping_endpoint(
+    authorization: Annotated[str | None, Header()] = None,
+) -> dict[str, object]:
+    """Diagnostic: verify Power BI auth path with progressively scoped calls."""
+    _check_auth(authorization)
+    try:
+        return powerbi_ping()
+    except Exception as exc:  # noqa: BLE001
+        log.exception("powerbi ping failed")
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Power BI ping failed: {exc}",
+        )
 
 
 @app.get("/v1/excstds-ping")

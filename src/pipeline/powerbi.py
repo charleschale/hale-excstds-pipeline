@@ -131,3 +131,78 @@ def run_named_query(name: str, *, key3: str) -> list[dict[str, Any]]:
     """Convenience: render + execute a named DAX query for a respondent."""
     dax = render_query(name, key3=key3)
     return execute_dax(dax)
+
+
+def diagnostic_ping() -> dict[str, Any]:
+    """Test PBI auth by making progressively more-permissioned calls.
+
+    Returns a dict showing which calls succeeded / failed. Used to
+    isolate 401s — membership problems look different from tenant-setting
+    problems look different from dataset-specific problems.
+    """
+    out: dict[str, Any] = {}
+    try:
+        token = _acquire_token()
+        out["token_acquired"] = True
+        out["token_length"] = len(token)
+    except Exception as exc:  # noqa: BLE001
+        out["token_acquired"] = False
+        out["token_error"] = str(exc)
+        return out
+
+    headers = {"Authorization": f"Bearer {token}"}
+    workspace = os.getenv("PBI_WORKSPACE_ID", "")
+    dataset = os.getenv("PBI_DATASET_ID", "")
+
+    # Can we list workspaces at all? (basic read permission)
+    try:
+        r = requests.get(
+            "https://api.powerbi.com/v1.0/myorg/groups",
+            headers=headers,
+            timeout=30,
+        )
+        out["list_groups_status"] = r.status_code
+        if r.ok:
+            groups = r.json().get("value", [])
+            out["list_groups_count"] = len(groups)
+            out["target_workspace_visible"] = any(
+                g.get("id", "").lower() == workspace.lower() for g in groups
+            )
+        else:
+            out["list_groups_body"] = r.text[:300]
+    except Exception as exc:  # noqa: BLE001
+        out["list_groups_error"] = str(exc)
+
+    # Can we list datasets inside the target workspace?
+    try:
+        r = requests.get(
+            f"https://api.powerbi.com/v1.0/myorg/groups/{workspace}/datasets",
+            headers=headers,
+            timeout=30,
+        )
+        out["list_datasets_status"] = r.status_code
+        if r.ok:
+            datasets = r.json().get("value", [])
+            out["list_datasets_count"] = len(datasets)
+            out["target_dataset_visible"] = any(
+                d.get("id", "").lower() == dataset.lower() for d in datasets
+            )
+        else:
+            out["list_datasets_body"] = r.text[:300]
+    except Exception as exc:  # noqa: BLE001
+        out["list_datasets_error"] = str(exc)
+
+    # Can we execute a trivial query? This is the actual capability we need.
+    try:
+        r = requests.post(
+            f"https://api.powerbi.com/v1.0/myorg/groups/{workspace}/datasets/{dataset}/executeQueries",
+            headers={**headers, "Content-Type": "application/json"},
+            json={"queries": [{"query": "EVALUATE ROW(\"ping\", 1)"}]},
+            timeout=30,
+        )
+        out["trivial_query_status"] = r.status_code
+        out["trivial_query_body"] = r.text[:500]
+    except Exception as exc:  # noqa: BLE001
+        out["trivial_query_error"] = str(exc)
+
+    return out
