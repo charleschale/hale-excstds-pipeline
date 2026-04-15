@@ -81,7 +81,19 @@ def fetch_table(table: str, *, timeout: int = 60) -> list[dict[str, str]]:
     if not resp.ok:
         raise ExcStdsFetchError(f"{base} table={table} returned {resp.status_code}")
     reader = csv.DictReader(io.StringIO(resp.text))
-    return list(reader)
+    rows = list(reader)
+    if not rows:
+        # Don't just return empty — record enough context to diagnose why.
+        # This has been the single most painful failure mode: 200 OK but the
+        # body is HTML (challenge page), JSON (error), or empty.
+        raise ExcStdsFetchError(
+            f"{base} table={table} returned 200 but 0 rows parsed. "
+            f"content_type={resp.headers.get('Content-Type')!r} "
+            f"bytes={len(resp.content)} "
+            f"final_url={resp.url!r} "
+            f"body_preview={resp.text[:300]!r}"
+        )
+    return rows
 
 
 def filter_by_key3(rows: Iterable[dict[str, Any]], key3: str) -> list[dict[str, Any]]:
