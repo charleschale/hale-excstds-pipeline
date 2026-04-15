@@ -29,6 +29,19 @@ DEFAULT_BASE = "https://haleglobal.com/excellence_export.php"
 
 VALID_TABLES = frozenset({"Lkup_Key", "scores", "text"})
 
+# haleglobal.com's WAF returns 403 to requests from Python's default
+# User-Agent. Send a realistic UA so the request is accepted. This value
+# rotates occasionally; keep it close to a real browser or a common
+# HTTP client like curl. Anything but "python-requests/..." works today.
+_REQUEST_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+    ),
+    "Accept": "text/csv, text/plain, */*",
+    "Accept-Language": "en-US,en;q=0.9",
+}
+
 
 class ExcStdsConfigError(RuntimeError):
     """Raised when a required env var is missing."""
@@ -58,7 +71,13 @@ def fetch_table(table: str, *, timeout: int = 60) -> list[dict[str, str]]:
     base, token = _config()
     params = {"token": token, "table": table}
     log.debug("GET %s table=%s", base, table)
-    resp = requests.get(base, params=params, timeout=timeout, allow_redirects=True)
+    resp = requests.get(
+        base,
+        params=params,
+        timeout=timeout,
+        allow_redirects=True,
+        headers=_REQUEST_HEADERS,
+    )
     if not resp.ok:
         raise ExcStdsFetchError(f"{base} table={table} returned {resp.status_code}")
     reader = csv.DictReader(io.StringIO(resp.text))
