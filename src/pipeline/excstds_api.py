@@ -71,12 +71,50 @@ def filter_by_key3(rows: Iterable[dict[str, Any]], key3: str) -> list[dict[str, 
 
 
 def lookup_respondent(key3: str) -> dict[str, str] | None:
-    """Return the Lkup_Key row for a Key3, or None if not found."""
+    """Return the Lkup_Key row for a Key3, or None if not found.
+
+    Logs diagnostic info on miss so we can distinguish "endpoint returned
+    nothing" from "endpoint returned data but no match."
+    """
     rows = fetch_table("Lkup_Key")
+    log.info("Lkup_Key returned %d rows", len(rows))
+    if rows:
+        sample_columns = list(rows[0].keys())
+        log.info("Lkup_Key columns: %s", sample_columns)
+        # Is our target there by substring (to catch whitespace / case issues)?
+        needle = key3.lower()
+        hits = [r.get("Key3") for r in rows if needle in str(r.get("Key3", "")).lower()]
+        if hits:
+            log.info("Found %d rows containing %r: first=%r", len(hits), needle, hits[0])
     for row in rows:
         if row.get("Key3") == key3:
             return row
     return None
+
+
+class RespondentLookupDiagnostic(RuntimeError):
+    """Raised in place of a bare None-return to surface diagnostic context
+    when a Key3 lookup fails. The server converts this into a detail-rich
+    404 response so the caller can see what actually happened."""
+
+
+def lookup_respondent_or_diagnose(key3: str) -> dict[str, str]:
+    """Wrap lookup_respondent with a diagnostic exception on miss."""
+    rows = fetch_table("Lkup_Key")
+    for row in rows:
+        if row.get("Key3") == key3:
+            return row
+    # Miss — build diagnostic payload
+    sample_key3s = [r.get("Key3") for r in rows[:3]]
+    needle = key3.lower()
+    hits = [r.get("Key3") for r in rows if needle in str(r.get("Key3", "")).lower()]
+    detail = (
+        f"Key3 {key3!r} not found. fetched {len(rows)} rows from Lkup_Key. "
+        f"columns={list(rows[0].keys()) if rows else []}. "
+        f"first 3 Key3 values={sample_key3s}. "
+        f"substring hits on {needle!r}={hits[:5]}"
+    )
+    raise RespondentLookupDiagnostic(detail)
 
 
 def fetch_text_answers(key3: str) -> list[dict[str, str]]:

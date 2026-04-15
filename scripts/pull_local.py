@@ -62,11 +62,10 @@ def main() -> int:
     headers = {"Authorization": f"Bearer {token}"}
     print(f"POST {url} key3={args.key3}")
     resp = requests.post(url, json={"key3": args.key3}, headers=headers, timeout=args.timeout)
-    if resp.status_code == 404:
-        print(f"Key3 not found: {args.key3}", file=sys.stderr)
-        return 1
     if not resp.ok:
-        print(f"Error {resp.status_code}: {resp.text[:500]}", file=sys.stderr)
+        # Print full response body on any non-2xx — 404 often contains a
+        # diagnostic detail from the pipeline about why lookup missed.
+        print(f"Error {resp.status_code}: {resp.text[:2000]}", file=sys.stderr)
         return 1
 
     out_dir = Path(args.output_root) / args.key3

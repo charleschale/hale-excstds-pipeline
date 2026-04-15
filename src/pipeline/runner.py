@@ -14,7 +14,11 @@ import logging
 from typing import Any
 
 from .excel_output import build_workbook
-from .excstds_api import fetch_text_answers, lookup_respondent
+from .excstds_api import (
+    RespondentLookupDiagnostic,
+    fetch_text_answers,
+    lookup_respondent_or_diagnose,
+)
 from .powerbi import run_named_query
 
 log = logging.getLogger(__name__)
@@ -37,11 +41,14 @@ def pull_respondent(key3: str) -> bytes:
     """Run the full pipeline for one Key3 and return xlsx bytes.
 
     Raises RespondentNotFound if Key3 isn't in Lkup_Key (usually a typo).
+    The RespondentNotFound message includes a diagnostic string so the
+    caller can tell lookup_miss apart from fetch_failure.
     """
     # Validate up front — if the Key3 isn't real, there's no point hitting PBI.
-    metadata = lookup_respondent(key3)
-    if metadata is None:
-        raise RespondentNotFound(f"Key3 not found in Lkup_Key: {key3!r}")
+    try:
+        metadata = lookup_respondent_or_diagnose(key3)
+    except RespondentLookupDiagnostic as exc:
+        raise RespondentNotFound(str(exc)) from exc
 
     pull: dict[str, list[dict[str, Any]]] = {
         "Metadata": [metadata],
