@@ -145,6 +145,40 @@ def run_named_query(name: str, *, key3: str) -> list[dict[str, Any]]:
     return execute_dax(dax)
 
 
+def _decode_jwt_claims(token: str) -> dict[str, Any]:
+    """Decode the payload section of a JWT without verifying the signature.
+
+    Used only for diagnostics — we trust the token because we just got it
+    from msal, so signature verification isn't adding anything here.
+    Returns a filtered set of the claims most relevant to auth debugging.
+    """
+    import base64
+    import json
+
+    parts = token.split(".")
+    if len(parts) != 3:
+        return {"error": f"token has {len(parts)} parts, expected 3"}
+    # JWT payload is base64url-encoded and may lack padding
+    padded = parts[1] + "=" * (-len(parts[1]) % 4)
+    try:
+        payload = json.loads(base64.urlsafe_b64decode(padded))
+    except Exception as exc:  # noqa: BLE001
+        return {"error": f"decode failed: {exc}"}
+    # Surface the claims that tell us if the token is valid for Power BI
+    return {
+        "aud": payload.get("aud"),
+        "iss": payload.get("iss"),
+        "tid": payload.get("tid"),
+        "appid": payload.get("appid"),
+        "oid": payload.get("oid"),
+        "roles": payload.get("roles"),
+        "scp": payload.get("scp"),
+        "idtyp": payload.get("idtyp"),
+        "exp": payload.get("exp"),
+        "iat": payload.get("iat"),
+    }
+
+
 def diagnostic_ping() -> dict[str, Any]:
     """Test PBI auth by making progressively more-permissioned calls.
 
@@ -157,6 +191,7 @@ def diagnostic_ping() -> dict[str, Any]:
         token = _acquire_token()
         out["token_acquired"] = True
         out["token_length"] = len(token)
+        out["token_claims"] = _decode_jwt_claims(token)
     except Exception as exc:  # noqa: BLE001
         out["token_acquired"] = False
         out["token_error"] = str(exc)
