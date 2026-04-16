@@ -1,16 +1,29 @@
 """Power BI executeQueries REST client.
 
-Uses a service principal (client credentials flow) to authenticate and fires
-DAX queries against the Excellence Standards dataset. Returns rows as plain
-Python dicts; the caller is responsible for assembling them into output
-formats.
+Supports two auth modes, selected automatically:
 
-Environment variables required:
+1. **User-delegated auth** (preferred) — when MSAL_REFRESH_TOKEN is set.
+   Uses a refresh token obtained via the device-code bootstrap script to
+   acquire access tokens as charles@haleglobal.com. This is proven to work
+   with executeQueries. Token expires every ~90 days; re-run bootstrap to
+   renew.
+
+2. **Service principal** (fallback) — when MSAL_REFRESH_TOKEN is absent.
+   Uses client-credentials flow. Currently blocked by an undocumented
+   Power BI platform restriction on executeQueries, but kept as an escape
+   hatch in case Microsoft fixes it.
+
+Environment variables required (both modes):
     PBI_TENANT_ID      - Azure tenant GUID
-    PBI_CLIENT_ID      - Service principal app (client) ID
-    PBI_CLIENT_SECRET  - Service principal secret value
+    PBI_CLIENT_ID      - App (client) ID
     PBI_WORKSPACE_ID   - Power BI workspace (group) GUID
     PBI_DATASET_ID     - Power BI dataset GUID
+
+Additional for user-delegated auth:
+    MSAL_REFRESH_TOKEN - Refresh token from bootstrap_user_auth.py
+
+Additional for SP fallback:
+    PBI_CLIENT_SECRET  - Service principal secret value
 
 See README for setup. Secrets never live in code or in the repo.
 """
@@ -48,11 +61,46 @@ def _require_env(name: str) -> str:
     return value
 
 
-def _acquire_token() -> str:
-    """Return a bearer token for the Power BI REST API.
+def _acquire_token_user() -> str:
+    """Acquire an access token as a delegated user via refresh token.
 
-    Uses msal's in-memory token cache so repeated calls in the same process
-    are cheap.
+    Uses MSAL's PublicClientApplication.acquire_token_by_refresh_token.
+    The refresh token is consumed and a new one is returned by Azure — but
+    since we're running on Render (stateless), we can't persist the rotated
+    token automatically. In practice the original refresh token stays valid
+    for its full 90-day lifetime as long as the app keeps using it before
+    expiry.
+    """
+    tenant = _require_env("PBI_TENANT_ID")
+    client_id = _require_env("PBI_CLIENT_ID")
+    refresh_token = _require_env("MSAL_REFRESH_TOKEN")
+
+    app = msal.PublicClientApplication(
+        client_id=client_id,
+        authority=f"https://login.microsoftonline.com/{tenant}",
+    )
+    # acquire_token_by_refresh_token is intentionally "hidden" by MSAL but
+    # works fine — it's the documented escape hatch for refresh-token flows
+    # where you manage the token yourself.
+    result = app.acquire_token_by_refresh_token(
+        refresh_token,
+        scopes=["https://analysis.windows.net/powerbi/api/.default"],
+    )
+    if "access_token" not in result:
+        raise PowerBIQueryError(
+            f"User-token refresh failed: {result.get('error')} — "
+            f"{result.get('error_description')}"
+        )
+    log.info("Acquired Power BI token via user-delegated auth (refresh token)")
+    return str(result["access_token"])
+
+
+def _acquire_token_sp() -> str:
+    """Acquire an access token as a service principal (client credentials).
+
+    This is the fallback path — currently blocked by Power BI for
+    executeQueries, but kept for diagnostic endpoints and as an escape
+    hatch.
     """
     tenant = _require_env("PBI_TENANT_ID")
     client_id = _require_env("PBI_CLIENT_ID")
@@ -66,9 +114,22 @@ def _acquire_token() -> str:
     result = app.acquire_token_for_client(scopes=SCOPE)
     if "access_token" not in result:
         raise PowerBIQueryError(
-            f"Token acquisition failed: {result.get('error')} — {result.get('error_description')}"
+            f"SP token acquisition failed: {result.get('error')} — "
+            f"{result.get('error_description')}"
         )
+    log.info("Acquired Power BI token via service principal (fallback)")
     return str(result["access_token"])
+
+
+def _acquire_token() -> str:
+    """Return a bearer token for the Power BI REST API.
+
+    Tries user-delegated auth first (if MSAL_REFRESH_TOKEN is set), then
+    falls back to service principal.
+    """
+    if os.getenv("MSAL_REFRESH_TOKEN"):
+        return _acquire_token_user()
+    return _acquire_token_sp()
 
 
 def execute_dax(dax: str, *, timeout: int = 90) -> list[dict[str, Any]]:
@@ -94,9 +155,13 @@ def execute_dax(dax: str, *, timeout: int = 90) -> list[dict[str, Any]]:
         "queries": [{"query": dax}],
         "serializerSettings": {"includeNulls": True},
     }
-    impersonated = os.getenv("PBI_IMPERSONATED_USER")
-    if impersonated:
-        body["impersonatedUserName"] = impersonated
+    # Only send impersonatedUserName when using SP auth. With user-delegated
+    # auth the authenticated user IS the identity — impersonation is neither
+    # needed nor allowed.
+    if not os.getenv("MSAL_REFRESH_TOKEN"):
+        impersonated = os.getenv("PBI_IMPERSONATED_USER")
+        if impersonated:
+            body["impersonatedUserName"] = impersonated
 
     headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
 
@@ -187,6 +252,8 @@ def diagnostic_ping() -> dict[str, Any]:
     problems look different from dataset-specific problems.
     """
     out: dict[str, Any] = {}
+    auth_mode = "user_delegated" if os.getenv("MSAL_REFRESH_TOKEN") else "service_principal"
+    out["auth_mode"] = auth_mode
     try:
         token = _acquire_token()
         out["token_acquired"] = True
@@ -240,12 +307,14 @@ def diagnostic_ping() -> dict[str, Any]:
         out["list_datasets_error"] = str(exc)
 
     # Can we execute a trivial query? This is the actual capability we need.
-    # Includes impersonatedUserName when configured — required for RLS.
+    # Only include impersonatedUserName for SP auth — user-delegated doesn't
+    # need or support it.
     body: dict[str, Any] = {"queries": [{"query": "EVALUATE ROW(\"ping\", 1)"}]}
-    impersonated = os.getenv("PBI_IMPERSONATED_USER")
-    if impersonated:
-        body["impersonatedUserName"] = impersonated
-        out["impersonated_user"] = impersonated
+    if auth_mode == "service_principal":
+        impersonated = os.getenv("PBI_IMPERSONATED_USER")
+        if impersonated:
+            body["impersonatedUserName"] = impersonated
+            out["impersonated_user"] = impersonated
     try:
         r = requests.post(
             f"https://api.powerbi.com/v1.0/myorg/groups/{workspace}/datasets/{dataset}/executeQueries",
