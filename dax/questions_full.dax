@@ -1,0 +1,43 @@
+// questions_full.dax
+// Full Questions-table export for the L2 → wedge mapping and polarity audit.
+// Unlike skinny.dax this is NOT filtered by respondent — it dumps every
+// active + scored question in the bank along with its polarity and design
+// attributes. Used to build the L2 mapping matrix authoritatively.
+//
+// Run this in DAX Studio (preferred) or Power BI Performance Analyzer and
+// export the result to TSV as _pipeline/data/questions_full.tsv.
+//
+// Expected row count: ~150+ (every active/scored question, not any single
+// respondent's served subset).
+//
+// Notes:
+//   - L1_Num and L1_Title are both fetched via LOOKUPVALUE against dim_L1L2
+//     rather than read directly from Questions. The skinny.dax uses
+//     RELATED('Questions'[L1_Num]) but that depends on row context created
+//     by iterating Answers; from a direct Questions iteration, LOOKUPVALUE
+//     is the safe form.
+//   - ORDER BY uses the output column names (bracketed) not the source
+//     table columns, since SELECTCOLUMNS reshapes the result.
+//   - If TargetBehavior or Commentary aren't present in the model, delete
+//     those two lines and rerun.
+
+EVALUATE
+SELECTCOLUMNS(
+    FILTER(
+        'Questions',
+        'Questions'[IsActive] = 1 && 'Questions'[IsScored] = 1
+    ),
+    "QuestionNmbr",   'Questions'[QuestionNmbr],
+    "QuestionText",   'Questions'[QuestionText],
+    "L1_Num",         LOOKUPVALUE('dim_L1L2'[L1_Num],    'dim_L1L2'[L2_Num], 'Questions'[L2_Num]),
+    "L1_Title",       LOOKUPVALUE('dim_L1L2'[L1_Title],  'dim_L1L2'[L2_Num], 'Questions'[L2_Num]),
+    "L2_Num",         'Questions'[L2_Num],
+    "L2_Short",       LOOKUPVALUE('dim_L1L2'[L2_Short],  'dim_L1L2'[L2_Num], 'Questions'[L2_Num]),
+    "IOU",            'Questions'[IOU],
+    "_Polarity",      'Questions'[_Polarity],
+    "RightNum",       'Questions'[RightNum],
+    "AnswerRange",    'Questions'[AnswerRange],
+    "TargetBehavior", 'Questions'[TargetBehavior],
+    "Commentary",     'Questions'[Commentary]
+)
+ORDER BY [L1_Num], [L2_Num], [QuestionNmbr]

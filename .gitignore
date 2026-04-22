@@ -25,3 +25,12 @@ Thumbs.db
 /respondents/
 /out/
 *.xlsx
+
+# ADOMD.NET runtime (large, reinstallable)
+.adomd/
+
+# Per-run data artifacts
+data/
+
+# Empty placeholder
+population_scores.csv

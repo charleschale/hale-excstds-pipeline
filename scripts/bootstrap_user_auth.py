@@ -42,7 +42,8 @@ def main() -> int:
         return 2
 
     authority = f"https://login.microsoftonline.com/{tenant}"
-    scopes = ["https://analysis.windows.net/powerbi/api/.default", "offline_access"]
+    # MSAL automatically adds offline_access — don't include it explicitly
+    scopes = ["https://analysis.windows.net/powerbi/api/.default"]
 
     app = msal.PublicClientApplication(client_id=client_id, authority=authority)
 
