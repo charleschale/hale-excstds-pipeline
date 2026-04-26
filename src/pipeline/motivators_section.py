@@ -285,8 +285,15 @@ def _render_callouts(primary_wedge, anti_wedge, name_first, narratives, intensit
 
 def _render_wiring(disc, nat_pos, nat_label, nat_intensity, adp_pos, adp_label, adp_intensity, shift_note=''):
     bars = ''
-    for axis, val, color in zip(['D','I','S','C'], disc, ['#c0392b','#f39c12','#27ae60','#2980b9']):
-        bars += f'<div class="disc-bar"><span class="disc-label">{axis}</span><div class="disc-track"><div class="disc-fill" style="width:{val}%;background:{color};"></div></div><span class="disc-val">{val}</span></div>'
+    # Bars are monochrome (dark navy) — the bar HEIGHT carries the score; the
+    # bar COLOR should not encode anything that could be confused with the L2
+    # alignment grammar elsewhere in the report (blue=motivator-strong,
+    # green=against-the-grain, tan=anti-aligned-weak, red=motivator-weak).
+    # The classic DISC palette (D=red, I=orange, S=green, C=blue) creates
+    # false visual rhyme with that grammar even though it carries no
+    # semantic meaning here. Keep these neutral.
+    for axis, val in zip(['D','I','S','C'], disc):
+        bars += f'<div class="disc-bar"><span class="disc-label">{axis}</span><div class="disc-track"><div class="disc-fill" style="width:{val}%;background:#1a2332;"></div></div><span class="disc-val">{val}</span></div>'
     adp_row = ''
     if adp_pos != nat_pos or adp_label != nat_label:
         adp_row = f'<tr><th>Adapted</th><td>pos {adp_pos} — {adp_label}</td><td>intensity {adp_intensity:.2f}</td></tr>'
