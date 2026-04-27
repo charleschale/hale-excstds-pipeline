@@ -127,7 +127,7 @@ None. If a candidate's profile calls for a probe the Form 8 set doesn't cover, t
 
 ## Section 10 — Recommendation
 - [ ] `class="recommendation-badge"` — min 1
-- [ ] `RECOMMENDATION_TEXT` is short pill text (≤ 120 chars)
+- [ ] `RECOMMENDATION_TEXT` is **summary pill text, not a paragraph block** (≤ 300 chars). Per Schott_Timothy 2026-04-27 build: the recommendation lives in a 12px gold inline pill and must read as a one-liner; longer narrative belongs in the Role-Fit Hard column or Targeted Concerns section, not the badge. Build-time `assert len(RECOMMENDATION_TEXT) <= 300`.
 
 ## Section 11 — Brand + Title + Tokens
 - [ ] `HALE GLOBAL SUCCESS DIAGNOSTICS` appears ≥ 2 times
@@ -135,6 +135,31 @@ None. If a candidate's profile calls for a probe the Form 8 set doesn't cover, t
 - [ ] `<title>` tag matches pattern `{Name} — {Role} | HALE GLOBAL SUCCESS DIAGNOSTICS`
 - [ ] Header brand lockup is `HALE GLOBAL SUCCESS DIAGNOSTICS` (not bare `HALE GLOBAL`)
 - [ ] Zero unreplaced `{{TOKEN}}` patterns in output
+
+## Section 11b — Role-Fit Section Content (added 2026-04-27, Schott build)
+
+The Role-Fit "What Will Be Hard" column must take a **step back to the wiring profile shape** before listing per-dimension concerns. This is non-negotiable for any CFO / control-function seat where the candidate's wiring quadrant matters.
+
+- [ ] `ROLE_FIT_HARD` opens with a "Step back" / wiring-quadrant paragraph that names:
+  - the canonical strong-CFO wiring quadrant (top-left of TTI wheel: Implementor + Conductor, high-D + high-C); for non-CFO seats, name the quadrant typical for that seat
+  - where the candidate's Natural and Adapted positions sit relative to that quadrant
+  - the size of the Natural→Adapted adaptation gap (especially S-compression > ~30 points), with the standard interpretation: large sustained adaptations are how leaders burn out of seats
+- [ ] Build-time check: `ROLE_FIT_HARD` contains at least one of `top-left`, `top-right`, `bottom-left`, `bottom-right` (TTI quadrant reference) AND at least one of `Implementor`, `Conductor`, `Persuader`, `Promoter`, `Relater`, `Supporter`, `Coordinator`, `Analyzer` (TTI wedge name).
+
+## Section 11c — Print / PDF Rendering Rules (added 2026-04-27, Schott build)
+
+Renderer (`make_pdf_<slug>.js` / `render_<slug>_pdf.js`) MUST include all of the following CSS rules. Failure mode: titles strand at the bottom of one page while their content jumps to the next, leaving 200–500px of trailing whitespace.
+
+- [ ] **`.role-fit-box` and `.concerns-box`** — `break-inside: avoid` (these are self-contained 2-column blocks small enough to fit one page; keep whole so the title stays attached to the columns).
+- [ ] **`.probes-section` and `.probes-grid`** — `break-inside: auto` (the 10-card grid is too tall to keep whole; rely on per-card atomicity + title-keep-with-next instead).
+- [ ] **Header keep-with-next** must include div-class titles (template uses `<div class="probes-title">`, `<div class="role-fit-col-label">`, `<div class="section-title">`, etc.) AND the in-box headers `.role-fit-box h3, .concerns-box h3`. The h-tag-only rule does not catch them.
+- [ ] **Paired-selector `break-before: avoid`** rules to chain title→first-child:
+  - `.probes-title + .probes-grid`
+  - `.role-fit-box h3 + .role-fit-seat`
+  - `.role-fit-seat + .role-fit-grid`
+  - `.concerns-box h3 + .concern-item`
+  - `.section-title + .timeline`, `.section-title + canvas`, `.section-title + p`
+- [ ] After every render, eyeball the PDF for: stranded titles at page bottoms, large trailing whitespace, content split across pages where a small atomic unit (probe-card, concern-item, role-fit column) was bisected.
 
 ## Section 12 — Data Provenance
 - [ ] L1 scores loaded from respondent `L1` sheet
