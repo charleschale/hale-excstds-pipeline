@@ -224,6 +224,38 @@ def _intensity_word(intensity):
     return 'Light'
 
 
+def compute_intensity_from_disc(disc):
+    """Compute Standard Map marker intensity (0..1) from a [D, I, S, C] DISC array.
+
+    The intensity controls how far from the center of the wheel the N (Natural) and
+    A (Adapted) markers are drawn. The right semantic mapping is:
+
+      - Strongly-anchored profiles (one DISC value clearly dominant, others much lower)
+        push markers TOWARD the outer edge.
+      - ACROSS / center-of-wheel profiles (four DISC values clustered near the 50/50/50/50
+        baseline) pull markers TOWARD the center of the wheel.
+
+    Reading any single DISC score in isolation (e.g. C/100) is the wrong model — it gave
+    Armstrong_Patrick (Adapted DISC 52/52/35/75 → ACROSS per the TTI wheel page) an
+    intensity of 0.75, drawing his marker at 75% of radius and visually contradicting the
+    ACROSS / no-strong-anchor narrative. The fix (added 2026-04-27) is to compute the
+    mean-absolute-deviation of the four DISC values from a 50/50/50/50 baseline,
+    normalized to [0..1]. Floor at 0.10 so center-of-wheel markers stay clear of the very
+    inside of the inner ring.
+
+    Examples:
+      Armstrong Natural [48, 52, 52, 71] → deviation 27/200 = 0.135 → ~0.14
+      Armstrong Adapted [52, 52, 35, 75] → deviation 44/200 = 0.220
+      Schott Natural    [63, 72, 72, 18] → deviation 89/200 = 0.445
+      Schott Adapted    [72, 66, 25, 42] → deviation 71/200 = 0.355
+
+    The intensity-from-deviation formula is the canonical mapping going forward.
+    """
+    deviation = sum(abs(v - 50) for v in disc)
+    intensity = deviation / 200.0
+    return max(0.10, min(intensity, 1.0))
+
+
 def _fmt_z(z):
     """Format z-score for the small number displayed inside the pill."""
     if z is None: return '—'

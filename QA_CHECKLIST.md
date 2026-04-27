@@ -136,15 +136,52 @@ None. If a candidate's profile calls for a probe the Form 8 set doesn't cover, t
 - [ ] Header brand lockup is `HALE GLOBAL SUCCESS DIAGNOSTICS` (not bare `HALE GLOBAL`)
 - [ ] Zero unreplaced `{{TOKEN}}` patterns in output
 
-## Section 11b — Role-Fit Section Content (added 2026-04-27, Schott build)
+## Section 11b — Role-Fit Section Content (added 2026-04-27, Schott build; expanded 2026-04-27, Armstrong build)
 
 The Role-Fit "What Will Be Hard" column must take a **step back to the wiring profile shape** before listing per-dimension concerns. This is non-negotiable for any CFO / control-function seat where the candidate's wiring quadrant matters.
 
-- [ ] `ROLE_FIT_HARD` opens with a "Step back" / wiring-quadrant paragraph that names:
-  - the canonical strong-CFO wiring quadrant (top-left of TTI wheel: Implementor + Conductor, high-D + high-C); for non-CFO seats, name the quadrant typical for that seat
-  - where the candidate's Natural and Adapted positions sit relative to that quadrant
-  - the size of the Natural→Adapted adaptation gap (especially S-compression > ~30 points), with the standard interpretation: large sustained adaptations are how leaders burn out of seats
-- [ ] Build-time check: `ROLE_FIT_HARD` contains at least one of `top-left`, `top-right`, `bottom-left`, `bottom-right` (TTI quadrant reference) AND at least one of `Implementor`, `Conductor`, `Persuader`, `Promoter`, `Relater`, `Supporter`, `Coordinator`, `Analyzer` (TTI wedge name).
+- [ ] `ROLE_FIT_HARD` opens with a "Step back" / wiring-shape paragraph.
+- [ ] Build-time check: `ROLE_FIT_HARD` contains a TTI quadrant reference (top-left / top-right / bottom-left / bottom-right) **OR** the explicit `ACROSS` / `center-of-wheel` framing for un-anchored profiles, AND at least one TTI wedge name (Implementor / Conductor / Persuader / Promoter / Relater / Supporter / Coordinator / Analyzer).
+
+### Section 11b.1 — Wheel position is REQUIRED, not optional (CRITICAL — added 2026-04-27, Armstrong build)
+
+**ALWAYS read the wheel position from the TTI before drafting any wiring-fit narrative. Reading DISC scores in isolation is insufficient and has produced shipping-quality errors.** Per Armstrong_Patrick 2026-04-27 build: the report initially read C=75 in isolation and concluded "canonical strong-CFO wiring, top-left quadrant." The actual TTI wheel positions were **Natural 60 (Promoting Analyzer, ACROSS) and Adapted 56 (Analyzing Implementor, ACROSS)** — both marked ACROSS, meaning **center-of-wheel, no strong anchor in any wedge**. Center-of-wheel profiles correlate with **lower success rates across all positions**; that read is the inverse of what "high C" implies in isolation. The wheel page (typically pages 25–27 in the TTI Executive PDF) is the source of truth.
+
+**Hard rules for every wiring-fit narrative:**
+
+1. Read the TTI wheel page. Record the Natural position number (1–60), the Natural wedge label, and whether it is marked **ACROSS** (transitional / between-wedges / center). Same for Adapted.
+2. Cite the position number AND the wedge label AND the ACROSS marker (when present) explicitly in the wiring narrative. Phrasing like *"Natural position 60, Promoting Analyzer (ACROSS)"* is the standard.
+3. Three structural reads to keep distinct:
+   - **Anchored in role-aligned wedge** — wedge matches the seat's canonical demand (e.g., Implementor / Conductor for CFO). This is the success-correlated read.
+   - **Anchored in wrong wedge** — clearly anchored in a wedge that is NOT what the seat rewards (e.g., Persuader / Promoter for CFO). This is what Schott_Timothy showed.
+   - **ACROSS / center-of-wheel** — not anchored in any wedge; generalist profile. Correlates with lower base-rate success across positions. This is what Armstrong_Patrick showed. **Do NOT mistake high C alone for an Implementor anchor; the wheel position is the source of truth.**
+4. Build-time check: any narrative that uses the phrases *"top-left,"* *"canonical CFO wiring,"* *"right wiring,"* *"Implementor quadrant,"* etc. MUST also cite the actual wheel position number. The qa_gate enforces this — see `build_<slug>_hiring.py`.
+
+### Section 11b.1.1 — Standard Map N/A marker intensity formula (added 2026-04-27, Armstrong build)
+
+Per Armstrong_Patrick 2026-04-27 build: the Standard Map dial's N (Natural) and A (Adapted) marker positions are computed from an `intensity` value (0..1) that controls how far from the center of the wheel each marker sits. The canonical mapping:
+
+- Strongly-anchored DISC profiles → markers pushed toward the outer edge (intensity high)
+- ACROSS / center-of-wheel profiles → markers pulled toward the center (intensity low)
+
+**Wrong model (do not use):** `intensity = max_disc / 100` or `intensity = (C + S) / 200`. The Schott build shipped with `(C + S) / 200`, which produced an Armstrong intensity of 0.75 in early drafts — contradicting the ACROSS positioning the TTI wheel actually showed.
+
+**Right model (canonical going forward):** mean-absolute-deviation from a 50/50/50/50 baseline, floored at 0.10. Implemented as `compute_intensity_from_disc(disc)` in `_pipeline/src/pipeline/motivators_section.py`.
+
+- [ ] Build script imports `compute_intensity_from_disc` from `pipeline.motivators_section` and uses it for both `nat_intensity` and `adp_intensity` rather than computing intensity ad-hoc.
+- [ ] Visual sanity-check after rendering: ACROSS profiles render N/A markers near the inner ring; clearly-anchored profiles render them at moderate-to-far-from-center radius.
+
+### Section 11b.2 — Two-Sport Athlete is a holistic capacity-to-grow read, not a varsity-sport checkbox (added 2026-04-27, Armstrong build)
+
+Per Armstrong_Patrick 2026-04-27 build: the radar dimension `Two-Sport Athlete` is shorthand for **the holistic Talent-axis read on capacity to grow**, not a literal varsity-sport check. The right questions are:
+
+1. Has this person been **promoted consistently** across roles?
+2. Does the LinkedIn record show **greatness in more than one area** (cross-domain excellence — board, advisory, athletic, civic, intellectual-public-output, founder)?
+3. Does the arc **suggest capacity to grow** into the next altitude — i.e., are the next-step roles successively bigger / harder / higher-altitude?
+
+Score the radar dimension on the integrated read of all three lenses, not on whether varsity sports appear on LinkedIn. Strong external signals (Big-4 Partner, NYSE-CFO, multiple awards, sustained board-level service, published writing) do NOT need to be paired with athletic distinction — they ARE Talent evidence on their own. Conversely, a varsity-sport line in college **without** the consistent-promotion / cross-domain-greatness pattern is not enough to score above 2 or 3.
+
+The narrative prose for this radar dimension must reflect the holistic frame, not a checkbox. *"No varsity sports listed on LinkedIn"* on its own is the wrong frame.
 
 ## Section 11c — Print / PDF Rendering Rules (added 2026-04-27, Schott build)
 
