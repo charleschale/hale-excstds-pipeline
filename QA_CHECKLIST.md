@@ -153,11 +153,12 @@ None. If a candidate's profile calls for a probe the Form 8 set doesn't cover, t
 - [ ] `RECOMMENDATION_TEXT` is **summary pill text, not a paragraph block** (≤ 300 chars). Per Schott_Timothy 2026-04-27 build: the recommendation lives in a 12px gold inline pill and must read as a one-liner; longer narrative belongs in the Role-Fit Hard column or Targeted Concerns section, not the badge. Build-time `assert len(RECOMMENDATION_TEXT) <= 300`.
 
 ## Section 11 — Brand + Title + Tokens
-- [ ] `HALE GLOBAL SUCCESS DIAGNOSTICS` appears ≥ 2 times
+- [ ] `HALE GLOBAL SUCCESS DIAGNOSTICS` appears ≥ 2 times (top banner + footer + PDF header + title; uppercase lockup locations)
 - [ ] Candidate full name appears ≥ 2 times
 - [ ] `<title>` tag matches pattern `{Name} — {Role} | HALE GLOBAL SUCCESS DIAGNOSTICS`
 - [ ] Header brand lockup is `HALE GLOBAL SUCCESS DIAGNOSTICS` (not bare `HALE GLOBAL`)
 - [ ] Zero unreplaced `{{TOKEN}}` patterns in output
+- [ ] **Narrative-content brand-lockup check (added 2026-04-28, Bender coaching build):** ZERO occurrences of bare `Hale Global` (proper-case, used in narrative prose) without the full lockup `Hale Global Success Diagnostics` following. Build-script regex: `re.search(r'Hale Global(?!\s+Success Diagnostics)', html_text_content)` must return None. This catches the closing-note / signature-pattern / connection-narrative / driving-forces-implications cases where authored prose accidentally drops the `Success Diagnostics` half of the lockup. See METHODOLOGY.md *"Brand-lockup discipline applies to ALL narrative content"*.
 
 ## Section 11b — Role-Fit Section Content (added 2026-04-27, Schott build; expanded 2026-04-27, Armstrong build)
 
