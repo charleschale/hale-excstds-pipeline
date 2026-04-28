@@ -265,6 +265,21 @@ The instrument-flagged Excellence-Standards concerns ARE the concerns. Interview
   - *"Bottom-decile [Y] describes a [Y] gap. Use [question name] to surface a recent specific case."*
   - *"The open seat-fit question is whether [demonstrated competence] travels to a new company without [the supporting context]."*
 
+## Section 11g — Coaching-guide L2 color tags (Variant 1 only — added 2026-04-28, Bender coaching build)
+
+Every Impact and Teach card in a Variant 1 coaching guide MUST end with a `<div class="practice-l2-tag">` containing the L2 number and short name (e.g., `8.1 Simplification Methods`). The tag renders as a long horizontal pill in the upper-right of each card and must color-match the wedge color used for that L2 in the respondent's Motivators wheel. See METHODOLOGY.md *"Coaching-guide L2 color tags — every Impact and Teach card MUST carry one"* for the full rule.
+
+- [ ] **Per-card practice-l2-tag presence.** Every `<div class="practice-item">` (Impact card) AND every `<div class="practice-item">` inside the Teach section MUST be paired with a `<div class="practice-l2-tag" ...>` element. Build-script qa_gate: `count('practice-l2-tag')` ≥ `count('practice-item')` minus the count of subsection-header divs. For a typical coaching guide with ~12 Impact cards (3-4 flag-driven + 8-9 per-answer) plus ~10 Teach cards = ≥22 practice-l2-tag elements.
+- [ ] **Color-bucket discipline.** Each tag's inline `style` MUST set `background`, `color`, AND `border-color` to one of the canonical 5-bucket palette colors (motivator_strong blue `#2563eb` / motivator_weak red `#c0392b` / anti_strong green `#22c55e` / anti_weak gold `#d4a84b` / off-wheel gray `#f3f4f6`). The text-color and border-color must produce sufficient contrast (white text on dark fills, dark text on pale fills).
+- [ ] **L2 number + name format.** Tag content is `<L2_number> <L2_short_name>` (e.g., `8.1 Simplification Methods`). The `data-l2` attribute must match the L2 number in the displayed text.
+- [ ] **Build-script qa_gate check.** Add: `if html.count('practice-l2-tag') < expected_card_count: failures.append(f"S11g: practice-l2-tag missing on {expected_card_count - count} cards")`. Fails the build if any Impact or Teach card is missing its L2 tag.
+- [ ] **The Bender coaching guide (April 2026) shipped without ANY practice-l2-tag elements on its 22 cards.** This was the regression that drove this rule's codification. Future coaching builds inherit the rule via the qa_gate check.
+- [ ] **L2 tag placement: upper-right of the card header row, NOT bottom of the card.** The tag must be a sibling of the inner `<div style="flex:1;">` (which holds title + qref), inside the outer `<div style="display:flex; align-items:baseline; gap:12px;">` that wraps practice-num + title + qref + L2 tag. CSS `flex-shrink:0` + `align-self:flex-start` on `.practice-l2-tag` combined with `flex:1` on the title-and-qref div is what positions the tag to the right edge of the header. See METHODOLOGY.md *"Implementation pattern — EXACT structural placement"* for the canonical HTML.
+- [ ] **Card structural integrity check (added 2026-04-28, Bender v5):** practice-body MUST be inside practice-item, not a sibling of it. Build-script qa_gate regex check: for each `<div class="practice-item">` opening, the next `<div class="practice-body">` must occur BEFORE the matching `</div>` that closes the practice-item. Three known bugs to detect:
+  - **Spurious extra `</div>` between close-outer-flex and `<div class="practice-body">`** → closes practice-item too early, kicks body out of card. Renders body unstyled below the card with no border/padding.
+  - **L2 tag nested inside `flex:1` instead of sibling-of-flex:1** → tag stacks below qref instead of floating right. Detected by counting `<div style="flex:1;">` opens vs `</div>` closes between qref and tag — opens minus closes must equal zero.
+  - **L2 tag placed after practice-body close instead of inside header row** → tag renders at bottom of card. Detected by checking that practice-l2-tag appears BEFORE practice-body in the source order for each card.
+
 ## Section 12 — Data Provenance
 - [ ] L1 scores loaded from respondent `L1` sheet
 - [ ] L2 scores loaded from respondent `L2` sheet column 5 `[Score5_filtered]`
@@ -285,3 +300,92 @@ timeline-block=6 timeline-legend=1 timeline-banner=1 legend-item=6
 probe-card=10 probe-number=10 probe-category=10 probe-question=10 probe-coaching=10
 recommendation-badge=1
 ```
+
+## Section 11h — Coaching-guide practice-fuel routine box (Variant 1 only — added 2026-04-28, Bender coaching build)
+
+Every Impact card AND every Teach card in a Variant 1 coaching guide MUST carry a `<div class="practice-fuel">` element containing a one-paragraph routine starting with the literal word "Routine" (Impact cards) or "Routine to protect" (Teach cards). The fuel renders as a yellow callout box at the bottom of the card and is the actionable behavioral routine that distinguishes a coaching card from a generic descriptive card. See METHODOLOGY.md *"Coaching-guide practice-fuel — every Impact and Teach card MUST carry one"* for the full rule.
+
+- [ ] **Per-card practice-fuel presence.** `count('class="practice-fuel"') == count('class="practice-item"')`. Build-script qa_gate: assert exact equality. Bender shipped without practice-fuel on 19 of 22 cards in v6 — this regression is what drove this rule's codification.
+- [ ] **Fuel content begins with the word "Routine".** Build-script regex: every `practice-fuel` div's text content must match `^Routine` (case-insensitive). Teach cards may use `Routine to protect`. Impact and flag cards use plain `Routine`.
+- [ ] **Structural placement: practice-fuel is a SIBLING of practice-body INSIDE practice-item.** Canonical card structure:
+
+```
+<div class="practice-item">
+  <div style="display:flex; ...">                       <!-- header row -->
+    <span class="practice-num">N</span>
+    <div style="flex:1;"><title /><qref /></div>
+    <div class="practice-l2-tag" ...>L2 NAME</div>      <!-- upper-right pill -->
+  </div>
+  <div class="practice-body">
+    <p>...</p>
+  </div>
+  <div class="practice-fuel">Routine: ...</div>         <!-- yellow callout -->
+</div>
+```
+
+- [ ] **Closing `</div>` MUST follow practice-fuel.** Bender flag cards 1, 2, 3 in v5–v6 had `practice-fuel` as the last sibling but were missing the close-practice-item `</div>`, which caused the next card to nest INSIDE the previous one in DOM. The visible symptoms were: stacked vertical gold left-borders (multiple practice-item border-lefts piled at the page edge) AND `break-inside:avoid` on the outer (now-deeply-nested) practice-item forcing the entire nested tree to be treated as one un-breakable card, which produced massive whitespace and stranded subsection-headers. **Build-script qa_gate regex:** for each `<div class="practice-item` opener in the rendered HTML, the next `<div class="practice-item` opener (or end of practice-section) must be preceded by an *equal-or-greater* number of `</div>` close tags such that the nesting depth returns to the practice-section level. The Python helper `_pipeline/scripts/_qa_helpers.py:assert_practice_item_balanced(html)` runs this check.
+- [ ] **Build-script qa_gate must fail the build** if any of: (a) `count(practice-fuel) != count(practice-item)`, (b) any `practice-fuel` text content does not start with `Routine`, (c) any practice-item is unclosed at the next sibling boundary.
+
+## Section 11i — Coaching-guide print-CSS pagination contract (Variant 1 only — added 2026-04-28, Bender coaching build)
+
+The render script `render_<slug>_coaching_pdf.js` MUST inject a print stylesheet via `page.addStyleTag` BEFORE the PDF is generated. The stylesheet has THREE non-negotiable parts. Failure produces stranded headers, multi-line indents, or chart-title-without-canvas splits like the ones Bender v6–v8 exhibited.
+
+### 11i.1 — Atomic blocks (`break-inside: avoid`)
+
+These blocks MUST be kept on a single page; they are small enough to fit on any page they land on:
+
+- [ ] `.practice-item` — every Impact and Teach card.
+- [ ] `.practice-fuel` — the yellow callout (separate rule because it can appear inside practice-item OR as standalone).
+- [ ] `.practice-subsection-hdr`, `.practice-subsection-hdr-title`, `.practice-subsection-hdr-blurb` — the multi-line subsection header block (e.g., FLAG-DRIVEN ITEMS, PER-ANSWER IMPACT ITEMS, TEACH ITEMS). Without this rule, the title can split from its blurb across pages.
+- [ ] `.dist-section` — the entire Population Distribution section (~325px tall: title + chart key + 3 histograms in a grid). Without this rule, the title + chart key end up at the bottom of one page and the histograms jump to the next.
+- [ ] `.dist-chart-panel` — each individual histogram panel (defensive; should rarely matter when `.dist-section` is atomic).
+- [ ] All atomic-card classes from hiring reports: `.callout, .bucket, .probe-card, .award-card, .board-role-card, .axis-card, .concern-card, .metric-card, .l2-row, .timeline-block, .timeline-row, .dimension-row, .flag-chip, .scorecard-row, .probe, .concern, .wiring-row, .htl-item`.
+
+### 11i.2 — Title-keep-with-next (`break-after: avoid`)
+
+These element classes MUST have `break-after: avoid` so the immediately-following content is pulled with them:
+
+- [ ] `h1, h2, h3, h4, h5, h6` (defensive baseline).
+- [ ] `.section-title` (Population Distribution, DISC Profile, Excellence Standards Dimensional Scorecard, Career Timeline).
+- [ ] `.subsection-title`.
+- [ ] `.practice-subsection-hdr` AND `.practice-subsection-hdr-title` — both required because the multi-line block can break-after either at the outer wrapper OR the inner title.
+- [ ] `.practice-header` — Part 1 / Part 2 (What You Teach / What to Work On). **Bender v9 stranded "Part 2" because this was missing.** The h-tag rule does not catch class-styled divs.
+- [ ] `.practice-subtitle` — sits between `.practice-header` and `.practice-subsection-hdr`.
+- [ ] `.metrics-title`, `.fingerprint-title` — Headline Metrics + Behavioral Fingerprint titles.
+- [ ] `.dist-chart-title`, `.dist-chart-key` — Population Distribution chart panel titles + chart-key strip.
+- [ ] `.bucket-pill, .card-title, .practice-item-title, .axis-title, .concern-title, .probe-title` — atomic card-internal titles.
+
+### 11i.3 — Paired-selector keep-with-previous (`break-before: avoid`)
+
+For every header class in 11i.2, at least one paired `+ next-sibling` selector must lock the keep-with-next from the other side:
+
+- [ ] `h2 + p, h3 + p, h4 + p` — defensive.
+- [ ] `.section-title + p, .subsection-title + p` — paragraph-following.
+- [ ] `.section-title + .timeline` — Career Timeline + first row.
+- [ ] `.section-title + canvas` — DISC Profile chart attachment.
+- [ ] `.practice-subsection-hdr + .practice-item` — REQUIRED for FLAG-DRIVEN ITEMS / PER-ANSWER IMPACT ITEMS / TEACH ITEMS to keep with their first card.
+- [ ] `.practice-header + .practice-subtitle` — Part 1/2 + subtitle.
+- [ ] `.practice-subtitle + .practice-subsection-hdr` — subtitle + first subsection header.
+- [ ] `.metrics-title + .metrics-grid` — Headline Metrics title + grid.
+- [ ] `.fingerprint-title + p` — Behavioral Fingerprint title + first paragraph.
+- [ ] `.section-title + .dist-chart-key` — Population Distribution title + chart key (also covered by `.dist-section` atomic rule).
+
+### 11i.4 — Auto-break overrides (`break-inside: auto`)
+
+Containers larger than a page MUST allow normal pagination:
+
+- [ ] `.section, .practice-section, .fingerprint, .metrics, .header`.
+- [ ] `.wiring-panel, .alignment-grid, .callouts-pair, .dist-chart, .ma-section, .career-timeline, .timeline-group`.
+- [ ] `.three-axes, .concerns, .interview-probes, .wiring-fit`.
+
+### 11i.5 — Canvas height preservation
+
+- [ ] `canvas { max-width: 100% !important; height: auto !important; }`. The `height: auto` is REQUIRED. Without it, Chart.js's responsive resize observer can clear the canvas drawing buffer mid-pagination, leaving titled-but-empty chart panels. Bender v11 demonstrated the regression — all 5 canvases reported `false` from the canvasCheck after dropping `height: auto`.
+
+### 11i.6 — Render-script canvas health-check
+
+- [ ] After `addStyleTag` and the 1.8s settle wait, query `document.querySelectorAll('canvas')` and read pixel data via `getImageData`. If ANY canvas has zero non-white pixels, abort with `process.exit(2)` BEFORE generating the PDF. This is what surfaced the v11 regression in seconds.
+
+### 11i.7 — Source-of-truth file integrity
+
+- [ ] Both `render_<slug>_coaching_pdf.js` and `coaching_guide_TEMPLATE.html` are susceptible to OneDrive sync truncation when the Edit tool writes them. After ANY change to either: (a) `node --check render_<slug>_coaching_pdf.js`, (b) confirm the template ends with `</html>`, (c) rebuild and inspect the rendered HTML's last 100 bytes for `</html>`. If truncated, restore the missing tail from `git show HEAD:<file>` before re-running the render.

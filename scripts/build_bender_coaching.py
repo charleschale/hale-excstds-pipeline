@@ -497,7 +497,9 @@ def build_impact_items_html():
         '<span class="practice-num">1</span><div style="flex:1;">'
         '<div class="practice-item-title">Conditional Belief Sev</div>'
         '<div class="practice-qref">Belief earned by proof, not extended in advance &middot; severity Severe</div>'
-        '</div></div>'
+        '</div>'
+        '<div class="practice-l2-tag" style="background:#22c55e; color:#ffffff; border-color:#22c55e;" data-l2="1.4">1.4 Demonstrating Genuine Fanness</div>'
+        '</div>'
         '<div class="practice-body">'
         '<p><strong>What the flag measures.</strong> Conditional Belief watches whether a leader '
         'extends developmental belief <em>before</em> a team member has earned it, or only after the '
@@ -532,7 +534,9 @@ def build_impact_items_html():
         '<span class="practice-num">2</span><div style="flex:1;">'
         '<div class="practice-item-title">Driving Accountability Hi</div>'
         '<div class="practice-qref">Driving consequences when standards are missed &middot; severity Hi</div>'
-        '</div></div>'
+        '</div>'
+        '<div class="practice-l2-tag" style="background:#dcfce7; color:#1a2332; border-color:#22c55e;" data-l2="5.3">5.3 Drives Accountability</div>'
+        '</div>'
         '<div class="practice-body">'
         '<p><strong>What the flag measures.</strong> Driving Accountability watches whether the leader '
         'follows through with a consequence when a standard is missed. The standard is straightforward: '
@@ -565,7 +569,9 @@ def build_impact_items_html():
         '<span class="practice-num">3</span><div style="flex:1;">'
         '<div class="practice-item-title">Not Eyes-On, Hands-Off</div>'
         '<div class="practice-qref">The opposite extreme of the typical micromanagement flag &middot; the under-engagement read</div>'
-        '</div></div>'
+        '</div>'
+        '<div class="practice-l2-tag" style="background:#dbeafe; color:#1a2332; border-color:#2563eb;" data-l2="4.1">4.1 Ability To Disappear</div>'
+        '</div>'
         '<div class="practice-body">'
         '<p><strong>What the flag measures.</strong> The Excellence Standard for an experienced leader '
         'is <em>Eyes On, Hands Off</em> &mdash; aware of what is happening across the team and not '
@@ -606,7 +612,9 @@ def build_impact_items_html():
         '<span class="practice-num">4</span><div style="flex:1;">'
         '<div class="practice-item-title">Make irreversible decisions later, not earlier</div>'
         '<div class="practice-qref">Q123 &middot; Org Decision Making &middot; you answered 4 (FALSE-leaning); the standard is 1 (TRUE)</div>'
-        '</div></div>'
+        '</div>'
+        '<div class="practice-l2-tag" style="background:#dcfce7; color:#1a2332; border-color:#22c55e;" data-l2="8.7">8.7 Facts Over Feelings</div>'
+        '</div>'
         '<div class="practice-body">'
         '<p>The standard reads: <em>&ldquo;I don&rsquo;t make an irreversible decision until I have to: '
         'I prize the optionality inherent in studying a problem and not acting until it is necessary.&rdquo;</em> '
@@ -620,6 +628,7 @@ def build_impact_items_html():
         'decision, ask <em>can this be done as a pilot, a 90-day trial, or a reversible test?</em> If yes, '
         'do that first.</p>'
         '</div>'
+        '<div class="practice-fuel">Routine: every time you find yourself about to commit to a structural HR decision (a comp band, a policy, a role definition, an org-shape change), ask &mdash; <em>can this be done as a pilot, a 90-day trial, or a reversible test first?</em> If yes, do that first. Optionality is the discipline.</div>'
         '</div>'
     )
 
@@ -629,7 +638,9 @@ def build_impact_items_html():
         '<span class="practice-num">5</span><div style="flex:1;">'
         '<div class="practice-item-title">Hold the line on mission-relevance for organizational stances</div>'
         '<div class="practice-qref">Q119 &middot; Org Decision Making &middot; you answered 4 (FALSE-leaning); the standard is 1 (TRUE)</div>'
-        '</div></div>'
+        '</div>'
+        '<div class="practice-l2-tag" style="background:#dbeafe; color:#1a2332; border-color:#2563eb;" data-l2="8.3">8.3 Respects Collective Wisdom</div>'
+        '</div>'
         '<div class="practice-body">'
         '<p>The standard reads: <em>&ldquo;When leaders take a stance and attempt to do the &lsquo;right&rsquo; '
         'thing about issues unconnected to the core mission of the organization, everyone loses.&rdquo;</em> '
@@ -643,6 +654,7 @@ def build_impact_items_html():
         'the people doing the work?</em> If the answer requires three reframings to get to yes, the answer '
         'is no.</p>'
         '</div>'
+        '<div class="practice-fuel">Routine: when a stance-taking opportunity surfaces, ask <em>does this directly serve the mission, the work, or the people doing the work?</em> If the answer requires three reframings to get to yes, the answer is no.</div>'
         '</div>'
     )
 
@@ -652,7 +664,9 @@ def build_impact_items_html():
         '<span class="practice-num">6</span><div style="flex:1;">'
         '<div class="practice-item-title">Broadcast that genius is 99% perspiration</div>'
         '<div class="practice-qref">Q65 &middot; Facilitative Mindset &middot; you answered 2 (smart-leaning); the standard is 5 (work hard)</div>'
-        '</div></div>'
+        '</div>'
+        '<div class="practice-l2-tag" style="background:#dcfce7; color:#1a2332; border-color:#22c55e;" data-l2="2.1">2.1 Dialogue Vs. Direction</div>'
+        '</div>'
         '<div class="practice-body">'
         '<p>The standard reads: prefer broadcasting that excellence comes from <em>work hard</em>, not '
         'from being <em>smart</em>. You answered 2, leaning toward the smart-side. This is a Gateway '
@@ -665,6 +679,7 @@ def build_impact_items_html():
         'meeting, name a recent excellence moment from the team and attribute it explicitly to <em>effort '
         'that compounded</em>, not to <em>natural talent</em>. Do this until it is the default frame.</p>'
         '</div>'
+        '<div class="practice-fuel">Routine: in the next staff meeting, name a recent excellence moment from the team and attribute it explicitly to <em>effort</em> &mdash; the late nights, the iteration, the thoroughness &mdash; not to <em>smartness</em>. Repeat in the next 1:1 with each direct.</div>'
         '</div>'
     )
 
@@ -674,7 +689,9 @@ def build_impact_items_html():
         '<span class="practice-num">7</span><div style="flex:1;">'
         '<div class="practice-item-title">Stop being the one who makes the final call</div>'
         '<div class="practice-qref">Q12 &middot; Conducting &amp; Outvoted &middot; you answered 1 (TRUE); the standard is 5 (FALSE)</div>'
-        '</div></div>'
+        '</div>'
+        '<div class="practice-l2-tag" style="background:#dbeafe; color:#1a2332; border-color:#2563eb;" data-l2="3.1">3.1 Conductor > Lead Guitarist</div>'
+        '</div>'
         '<div class="practice-body">'
         '<p>The standard reads: <em>&ldquo;I am relied upon to make the final call.&rdquo;</em> The '
         'standard answer is FALSE &mdash; admired leaders build teams that make most calls without them. '
@@ -688,6 +705,7 @@ def build_impact_items_html():
         'Authority is +0.05 &mdash; the muscle is at cohort-average; a few deliberate handoffs will move '
         'it.</p>'
         '</div>'
+        '<div class="practice-fuel">Routine: name two recurring decisions this month that you are currently making and that your team should be making instead. Hand them over with the decision rights AND the accountability for outcomes. Do not take them back when the call goes a way you would not have called it.</div>'
         '</div>'
     )
 
@@ -697,7 +715,9 @@ def build_impact_items_html():
         '<span class="practice-num">8</span><div style="flex:1;">'
         '<div class="practice-item-title">Your team should know the #1 priority, the quantification, and the date</div>'
         '<div class="practice-qref">Q75 &middot; Not Pleasing &middot; you answered 5 (FALSE); the standard is 1 (TRUE)</div>'
-        '</div></div>'
+        '</div>'
+        '<div class="practice-l2-tag" style="background:#dbeafe; color:#1a2332; border-color:#2563eb;" data-l2="5.8">5.8 Stds = What Tolerate</div>'
+        '</div>'
         '<div class="practice-body">'
         '<p>The standard reads: <em>&ldquo;My team knows the #1 overall corporate priority, the '
         'quantification of it, and the date we will hit it.&rdquo;</em> You answered FALSE, meaning the '
@@ -709,6 +729,7 @@ def build_impact_items_html():
         'The routine: name the one thing this week. Quantify it. Date it. Tell the team. Repeat at the '
         'start of every staff meeting until they can recite it back to you in their own words.</p>'
         '</div>'
+        '<div class="practice-fuel">Routine: name the one thing this week. Quantify it. Date it. Tell the team. Repeat at the start of every staff meeting until they can recite it back to you in their own words.</div>'
         '</div>'
     )
 
@@ -718,7 +739,9 @@ def build_impact_items_html():
         '<span class="practice-num">9</span><div style="flex:1;">'
         '<div class="practice-item-title">Don&rsquo;t carry seats because the knowledge feels too critical to risk losing</div>'
         '<div class="practice-qref">Q82 &middot; Pushing Accountability &middot; you answered 2 (TRUE-leaning); the standard is 5 (FALSE)</div>'
-        '</div></div>'
+        '</div>'
+        '<div class="practice-l2-tag" style="background:#d4a84b; color:#1a2332; border-color:#d4a84b;" data-l2="5.2">5.2 Jrs Extreme Proactivity</div>'
+        '</div>'
         '<div class="practice-body">'
         '<p>The standard reads: <em>&ldquo;I have some people in my org I&rsquo;d replace except their '
         'experience and knowledge are too critical to risk it.&rdquo;</em> You answered 2 (close to TRUE), '
@@ -731,6 +754,7 @@ def build_impact_items_html():
         'role becomes replaceable? Then act on the original re-evaluation. Knowledge that lives only in '
         'one head is operational risk; knowledge that has been captured into the team is leverage.</p>'
         '</div>'
+        '<div class="practice-fuel">Routine: write down the names of the seats you would re-evaluate today if knowledge transfer were free. For each one, design a 90-day documented-transfer plan &mdash; what must the person teach the team or systematize so that the role becomes replaceable? Then act on the original re-evaluation.</div>'
         '</div>'
     )
 
@@ -740,7 +764,9 @@ def build_impact_items_html():
         '<span class="practice-num">10</span><div style="flex:1;">'
         '<div class="practice-item-title">Stop tasking below your direct reports</div>'
         '<div class="practice-qref">Q7 &middot; Pushing Accountability &middot; you answered 4 (FALSE-leaning); the standard is 1 (TRUE)</div>'
-        '</div></div>'
+        '</div>'
+        '<div class="practice-l2-tag" style="background:#dcfce7; color:#1a2332; border-color:#22c55e;" data-l2="4.3">4.3 Urgency Down Chain Of Command</div>'
+        '</div>'
         '<div class="practice-body">'
         '<p>The standard reads: <em>&ldquo;In the last 6 months, I haven&rsquo;t tasked anyone except my '
         'direct reports.&rdquo;</em> You answered 4 (close to FALSE), meaning you have at times tasked '
@@ -752,6 +778,7 @@ def build_impact_items_html():
         'subordinate directly. The routine: when you catch yourself about to message someone below your '
         'direct, redirect through the direct. The latency cost is real and worth it.</p>'
         '</div>'
+        '<div class="practice-fuel">Routine: when you catch yourself about to message someone below your direct, redirect through the direct. The latency cost (one extra hop) is real and worth it &mdash; it protects the middle layer&rsquo;s authority and the chain of accountability.</div>'
         '</div>'
     )
 
@@ -761,7 +788,9 @@ def build_impact_items_html():
         '<span class="practice-num">11</span><div style="flex:1;">'
         '<div class="practice-item-title">Foster dialogue by asking questions, not by taking positions</div>'
         '<div class="practice-qref">Q18 &middot; Facilitative Mindset &middot; you answered 2 (TRUE-leaning); the standard is 5 (FALSE)</div>'
-        '</div></div>'
+        '</div>'
+        '<div class="practice-l2-tag" style="background:#dcfce7; color:#1a2332; border-color:#22c55e;" data-l2="2.1">2.1 Dialogue Vs. Direction</div>'
+        '</div>'
         '<div class="practice-body">'
         '<p>The standard reads: <em>&ldquo;I foster debate by taking positions and challenging people to '
         'think critically more than I foster dialogue by asking questions.&rdquo;</em> The standard answer '
@@ -776,6 +805,7 @@ def build_impact_items_html():
         'The routine: in the next staff meeting, run an entire agenda item where every contribution from '
         'you is reframed as a question. The team will surface positions you did not know they held.</p>'
         '</div>'
+        '<div class="practice-fuel">Routine: in the next staff meeting, run an entire agenda item where every contribution from you is reframed as a question. The team will surface positions you did not know they held. Repeat weekly until the muscle is wired in for group settings the way it is for 1:1s.</div>'
         '</div>'
     )
 
@@ -785,7 +815,9 @@ def build_impact_items_html():
         '<span class="practice-num">12</span><div style="flex:1;">'
         '<div class="practice-item-title">Build talent redundancy &mdash; people can rise to fill in for each other</div>'
         '<div class="practice-qref">Q1 &middot; Replacing Self &middot; you answered 2 (close to TRUE-1); the standard is 5</div>'
-        '</div></div>'
+        '</div>'
+        '<div class="practice-l2-tag" style="background:#dcfce7; color:#1a2332; border-color:#22c55e;" data-l2="4.4">4.4 CEO gets outside exec</div>'
+        '</div>'
         '<div class="practice-body">'
         '<p>The standard reads, on talent redundancy: <em>&ldquo;My team&rsquo;s talent is such that '
         'people can rise to fill in for other people.&rdquo;</em> The standard answer (5) describes a '
@@ -798,6 +830,7 @@ def build_impact_items_html():
         'teammate can carry the role through a vacation, an unexpected leave, or a transition. Pair '
         'this with Impact 6 (knowledge-as-irreplaceable) &mdash; the routines reinforce each other.</p>'
         '</div>'
+        '<div class="practice-fuel">Routine: pick the two highest-risk single-points-of-failure on the team. Design a 90-day cross-training plan for each &mdash; not full mastery transfer, but enough that an adjacent teammate can carry the role through a vacation, an unexpected leave, or a transition.</div>'
         '</div>'
     )
 
@@ -821,7 +854,9 @@ def build_teach_items_html():
         '<span class="practice-num">T1</span><div style="flex:1;">'
         '<div class="practice-item-title">You challenge your direct reports daily</div>'
         '<div class="practice-qref">Q134 &middot; Investing in Others &middot; you answered 1 (TRUE); the standard is 1</div>'
-        '</div></div>'
+        '</div>'
+        '<div class="practice-l2-tag" style="background:#22c55e; color:#ffffff; border-color:#22c55e;" data-l2="1.5">1.5 Developmental Mindset</div>'
+        '</div>'
         '<div class="practice-body">'
         '<p>You named that you challenge your direct reports every day or almost every day. This is the '
         'foundational daily-rep that produces the development outcomes your file reports: the 56% turnover '
@@ -832,6 +867,7 @@ def build_teach_items_html():
         'challenge per direct &mdash; one specific stretch ask, in writing &mdash; will preserve the '
         'discipline at distributed scale.</p>'
         '</div>'
+        '<div class="practice-fuel">Routine to protect: as the team grows and the geography stretches, install a weekly written challenge per direct &mdash; one specific stretch ask, in writing &mdash; so the daily-challenge cadence compounds through asynchronous channels too.</div>'
         '</div>'
     )
 
@@ -841,7 +877,9 @@ def build_teach_items_html():
         '<span class="practice-num">T2</span><div style="flex:1;">'
         '<div class="practice-item-title">Your goal is to enable your leaders to reach their full potential</div>'
         '<div class="practice-qref">Q137 &middot; Investing in Others &middot; you answered 1 (TRUE); the standard is 1</div>'
-        '</div></div>'
+        '</div>'
+        '<div class="practice-l2-tag" style="background:#dcfce7; color:#1a2332; border-color:#22c55e;" data-l2="1.6">1.6 Developmental Discipline</div>'
+        '</div>'
         '<div class="practice-body">'
         '<p>You hold the canonical developmental-leader frame. Your DF Selfless 96 (Extreme) is the wiring '
         'that produces this orientation naturally &mdash; you do the work because the work matters to the '
@@ -850,6 +888,7 @@ def build_teach_items_html():
         'the proof, not after. Your daily-challenge muscle (Teach 1) plus a pre-proof-belief routine '
         '(Impact 1) is the full developmental loop.</p>'
         '</div>'
+        '<div class="practice-fuel">Routine to protect: pair the daily-challenge muscle (T1) with a pre-proof-belief routine (Impact 1, Conditional Belief). Together they form the full developmental loop &mdash; belief extended before the work proves them out, plus the daily reps that build the proof.</div>'
         '</div>'
     )
 
@@ -859,7 +898,9 @@ def build_teach_items_html():
         '<span class="practice-num">T3</span><div style="flex:1;">'
         '<div class="practice-item-title">Each direct report is fully capable of doing their job without supervision</div>'
         '<div class="practice-qref">Q138 &middot; Replacing Self &middot; you answered 1 (TRUE); the standard is 1</div>'
-        '</div></div>'
+        '</div>'
+        '<div class="practice-l2-tag" style="background:#dbeafe; color:#1a2332; border-color:#2563eb;" data-l2="4.1">4.1 Ability To Disappear</div>'
+        '</div>'
         '<div class="practice-body">'
         '<p>You answered that each of your direct reports is fully capable without supervision or guidance. '
         'This is the muscle that built your Replacing Self L1 +1.34 Algo, and it is the underlying reason '
@@ -868,6 +909,7 @@ def build_teach_items_html():
         'routine (skip-level listening cadence) to actually work &mdash; the directs are capable, so the '
         'job is to stay informed about how they are doing it, not to do it.</p>'
         '</div>'
+        '<div class="practice-fuel">Routine to protect: stay informed about <em>how</em> directs are doing the work, not <em>what</em> they are doing. Skip-level listening (Flag 3 cadence) is the discipline that protects this strength as the seat scales.</div>'
         '</div>'
     )
 
@@ -877,7 +919,9 @@ def build_teach_items_html():
         '<span class="practice-num">T4</span><div style="flex:1;">'
         '<div class="practice-item-title">You have a difficult conversation every day or almost every day</div>'
         '<div class="practice-qref">Q83 &middot; Investing in Others &middot; you answered 1 (TRUE); the standard is 1</div>'
-        '</div></div>'
+        '</div>'
+        '<div class="practice-l2-tag" style="background:#dcfce7; color:#1a2332; border-color:#22c55e;" data-l2="1.3">1.3 Handling Daily Difficulties With Dignity</div>'
+        '</div>'
         '<div class="practice-body">'
         '<p>This is the most important teach item on your file. It is also the strongest counter-evidence '
         'to the surface read of the Conditional Belief and Driving Accountability flags. You are NOT a '
@@ -887,6 +931,7 @@ def build_teach_items_html():
         'the proof</em> (Conditional Belief). The Q83 daily-cadence is the foundation; the flag-driven '
         'routines are the next layer of refinement on top of it.</p>'
         '</div>'
+        '<div class="practice-fuel">Routine to protect: keep the daily-difficult-conversation cadence in place. The flag-driven routines on consequence (Flag 2) and pre-proof-belief (Flag 1) refine the conversations from there &mdash; they are not a replacement for the cadence.</div>'
         '</div>'
     )
 
@@ -896,7 +941,9 @@ def build_teach_items_html():
         '<span class="practice-num">T5</span><div style="flex:1;">'
         '<div class="practice-item-title">Zero voluntary attrition; team members turn down higher offers</div>'
         '<div class="practice-qref">Q50 &middot; Investing in Others &middot; you answered 1 (TRUE); the standard is 1</div>'
-        '</div></div>'
+        '</div>'
+        '<div class="practice-l2-tag" style="background:#dcfce7; color:#1a2332; border-color:#22c55e;" data-l2="1.1">1.1 Reciprocal Followership</div>'
+        '</div>'
         '<div class="practice-body">'
         '<p>You named that team members turn down higher offers from other companies to stay on your team. '
         'This is the strongest external-validator signal in the data. The 11 written recommendations on '
@@ -909,6 +956,7 @@ def build_teach_items_html():
         'happening organically through proximity. Your Atlas Technica work is the test of whether this '
         'discipline scales.</p>'
         '</div>'
+        '<div class="practice-fuel">Routine to protect: as the seat scales to 17-country distributed teams, the conditions that produced this retention have to be engineered deliberately &mdash; named growth conversations, named exposure, named stretch &mdash; rather than relying on proximity to do the work.</div>'
         '</div>'
     )
 
@@ -918,7 +966,9 @@ def build_teach_items_html():
         '<span class="practice-num">T6</span><div style="flex:1;">'
         '<div class="practice-item-title">You have routines you have done every single day for years</div>'
         '<div class="practice-qref">Q24 &middot; Personal Reliability &middot; you answered 1 (TRUE); the standard is 1</div>'
-        '</div></div>'
+        '</div>'
+        '<div class="practice-l2-tag" style="background:#22c55e; color:#ffffff; border-color:#22c55e;" data-l2="6.3">6.3 Commitment To Routine</div>'
+        '</div>'
         '<div class="practice-body">'
         '<p>The personal-discipline machinery is wired in. Personal Reliability L1 +0.60 in both reads, '
         'L2 6.3 Commitment to Routine +0.79. This is what compounds across a 14-year HR career arc with '
@@ -928,6 +978,7 @@ def build_teach_items_html():
         'this seat needs. Worth a quarterly audit: which daily routines are still earning their cost, and '
         'which have become muscle memory that no longer produces a result?</p>'
         '</div>'
+        '<div class="practice-fuel">Routine to protect: quarterly audit. Which daily routines are still earning their cost, and which have become muscle memory that no longer produces a result? The routines that got you to this seat are not necessarily the routines this seat needs.</div>'
         '</div>'
     )
 
@@ -937,7 +988,9 @@ def build_teach_items_html():
         '<span class="practice-num">T7</span><div style="flex:1;">'
         '<div class="practice-item-title">When multiple parties are accountable, no one truly is</div>'
         '<div class="practice-qref">Q381 &middot; Org Decision Making &middot; you answered 1 (TRUE); the standard is 1</div>'
-        '</div></div>'
+        '</div>'
+        '<div class="practice-l2-tag" style="background:#22c55e; color:#ffffff; border-color:#22c55e;" data-l2="8.2">8.2 Clarity Of Accountability</div>'
+        '</div>'
         '<div class="practice-body">'
         '<p>You answered the canonical clarity-of-accountability question correctly. This is worth naming '
         'because it is one of the questions other senior leaders in the working set have gotten wrong &mdash; '
@@ -947,6 +1000,7 @@ def build_teach_items_html():
         'tasking below directs) &mdash; the routine that protects clarity of accountability at distributed '
         'scale is single-point ownership routed through the appropriate layer.</p>'
         '</div>'
+        '<div class="practice-fuel">Routine to protect: pair this principle with Impact 7 (stop tasking below directs). Single-point ownership routed through the appropriate layer is the discipline that protects clarity of accountability at distributed scale.</div>'
         '</div>'
     )
 
@@ -956,7 +1010,9 @@ def build_teach_items_html():
         '<span class="practice-num">T8</span><div style="flex:1;">'
         '<div class="practice-item-title">You don&rsquo;t send emails (or messages) when upset</div>'
         '<div class="practice-qref">Q44 &middot; Personal Reliability &middot; you answered 1 (TRUE); the standard is 1</div>'
-        '</div></div>'
+        '</div>'
+        '<div class="practice-l2-tag" style="background:#dcfce7; color:#1a2332; border-color:#22c55e;" data-l2="6.1">6.1 Extreme Ownership</div>'
+        '</div>'
         '<div class="practice-body">'
         '<p>You answered the canonical emotional-discipline question correctly. This is the muscle that '
         'protects relationships across the org under pressure &mdash; particularly relevant for an HR '
@@ -967,6 +1023,7 @@ def build_teach_items_html():
         'multiply (Slack across timezones, async video, written reviews). The same discipline applies '
         'to all of them.</p>'
         '</div>'
+        '<div class="practice-fuel">Routine to protect: the same emotional discipline applies to every asynchronous channel &mdash; Slack across timezones, async video, written reviews. Audit yourself weekly: did anything ship under heat?</div>'
         '</div>'
     )
 
@@ -976,7 +1033,9 @@ def build_teach_items_html():
         '<span class="practice-num">T9</span><div style="flex:1;">'
         '<div class="practice-item-title">When a team member can&rsquo;t surrender their distaste, they must be removed quickly</div>'
         '<div class="practice-qref">Q120 &middot; Org Decision Making &middot; you answered 1 (TRUE); the standard is 1</div>'
-        '</div></div>'
+        '</div>'
+        '<div class="practice-l2-tag" style="background:#dbeafe; color:#1a2332; border-color:#2563eb;" data-l2="8.3">8.3 Respects Collective Wisdom</div>'
+        '</div>'
         '<div class="practice-body">'
         '<p>You answered the canonical remove-the-corrosive-team-member question correctly. This is '
         'a counter-evidence to the surface read of the Driving Accountability flag &mdash; you '
@@ -986,6 +1045,7 @@ def build_teach_items_html():
         '(missed-standard, deferred-consequence). The principle in this teach item is the foundation '
         'for the Flag 2 routine.</p>'
         '</div>'
+        '<div class="practice-fuel">Routine to protect: this teach is the foundation for Flag 2&rsquo;s routine. The catastrophic case (corrosive team member) is wired right; the next layer is the missed-standard, deferred-consequence case &mdash; the more common form of the same muscle.</div>'
         '</div>'
     )
 
@@ -995,7 +1055,9 @@ def build_teach_items_html():
         '<span class="practice-num">T10</span><div style="flex:1;">'
         '<div class="practice-item-title">You answer questions with questions</div>'
         '<div class="practice-qref">Q20 &middot; Facilitative Mindset &middot; you answered 5 (FALSE = you DO ask back); the standard is 5</div>'
-        '</div></div>'
+        '</div>'
+        '<div class="practice-l2-tag" style="background:#dcfce7; color:#1a2332; border-color:#22c55e;" data-l2="2.1">2.1 Dialogue Vs. Direction</div>'
+        '</div>'
         '<div class="practice-body">'
         '<p>The Facilitative Mindset standard rejects the framing that &ldquo;the leader&rsquo;s job is '
         'to tell people what to do.&rdquo; You answered correctly: you DO answer questions with '
@@ -1005,6 +1067,7 @@ def build_teach_items_html():
         'extension of the same muscle into group settings (staff meetings, executive forums) where the '
         'wiring may default to taking a position first.</p>'
         '</div>'
+        '<div class="practice-fuel">Routine to protect: extend the answer-with-questions muscle from 1:1s into group settings. In the next staff meeting, run an item where every contribution from you is a question &mdash; this pairs with Impact 8 (foster dialogue by asking questions).</div>'
         '</div>'
     )
 
@@ -1183,6 +1246,63 @@ def qa_gate(html):
 
     print()
     print("=== QA GATE ===")
+    # Section 11g — Coaching-guide L2 color tags (added 2026-04-28, Bender coaching build)
+    # Every Impact and Teach card MUST have a practice-l2-tag with motivators-wheel colors.
+    n_practice_items = html.count('class="practice-item"') + html.count('class="practice-item flag-driven"')
+    n_l2_tags = html.count('class="practice-l2-tag"')
+    if n_l2_tags < n_practice_items:
+        failures.append(
+            f"S11g: practice-l2-tag count ({n_l2_tags}) < practice-item count ({n_practice_items}) "
+            f"— missing L2 tag on {n_practice_items - n_l2_tags} card(s). "
+            f"Every Impact and Teach card must end with a <div class=\"practice-l2-tag\" style=\"background:#XXX; "
+            f"color:#YYY; border-color:#ZZZ;\" data-l2=\"X.Y\">X.Y Name</div> using motivators-wheel colors."
+        )
+
+    # Section 11h - Coaching-guide practice-fuel routine box (added 2026-04-28, Bender coaching build)
+    # Every Impact and Teach card MUST end with a <div class="practice-fuel"> Routine: ... </div>.
+    n_fuel = html.count('class="practice-fuel"')
+    if n_fuel != n_practice_items:
+        failures.append(
+            f"S11h: practice-fuel count ({n_fuel}) != practice-item count ({n_practice_items}). "
+            f"Every Impact and Teach card MUST end with <div class=\"practice-fuel\">Routine: ...</div>. "
+            f"Bender shipped without practice-fuel on 19 of 22 cards in v6 - this is the regression that "
+            f"drove the rule. See METHODOLOGY 'Coaching-guide practice-fuel - every Impact and Teach card MUST carry one'."
+        )
+
+    # All practice-fuel content begins with the word 'Routine' (or 'Routine to protect' for teach cards).
+    fuel_content_re = re.compile(r'<div class="practice-fuel">([^<]*)')
+    bad_fuel = [m.group(1)[:60] for m in fuel_content_re.finditer(html) if not m.group(1).lstrip().lower().startswith('routine')]
+    if bad_fuel:
+        failures.append(
+            f"S11h: {len(bad_fuel)} practice-fuel block(s) do not start with 'Routine': "
+            f"{[s[:40] for s in bad_fuel[:3]]}"
+        )
+
+    # Section 11h structural-integrity check - practice-item open/close balance.
+    # For each <div class="practice-item..."> opener, find the next <div class="practice-item..." opener
+    # and assert the depth between them returns to the section level (i.e., equal opens and closes between them).
+    item_open_re = re.compile(r'<div class="practice-item(?:"|\s+flag-driven")')
+    closes_re = re.compile(r'</div>')
+    opens_re = re.compile(r'<div\b')
+    item_positions = [m.start() for m in item_open_re.finditer(html)]
+    for i in range(len(item_positions) - 1):
+        between = html[item_positions[i]:item_positions[i+1]]
+        opens = len(opens_re.findall(between))
+        closes = len(closes_re.findall(between))
+        # Each card should be self-contained: opens == closes between two adjacent practice-item starts
+        if opens != closes:
+            failures.append(
+                f"S11h: practice-item structural imbalance between cards {i+1} and {i+2}: "
+                f"{opens} opens vs {closes} closes between them. "
+                f"Each card MUST close its practice-item div before the next opens. "
+                f"See METHODOLOGY 'Implementation pattern - EXACT structural placement'."
+            )
+            break
+
+    # Section 11i - Print-CSS pagination contract is enforced in the render script,
+    # not here. The render script must inject the print stylesheet via page.addStyleTag and
+    # run a post-paint canvas health-check. See QA_CHECKLIST 11i for the full contract.
+
     if failures:
         print(f"*** QA GATE FAILED: {len(failures)} issue(s) ***")
         for f in failures:
@@ -1237,8 +1357,8 @@ def main():
     replacements = {
         # Header / meta
         'CANDIDATE_NAME': 'Jody Bender',
-        'CANDIDATE_CREDS': 'CEO &amp; Co-Founder &middot; Provable Markets',
-        'CANDIDATE_ROLE': 'FinTech &middot; Securities Lending Platform &middot; $18MM Seed &rarr; ~$75MM Series A Ext',
+        'CANDIDATE_CREDS': 'Director, Global Business Partner &middot; Atlas Technica',
+        'CANDIDATE_ROLE': 'People Operations &middot; SaaS &middot; ~2,000 employees across 35+ U.S. states and 17 countries',
         'REPORT_DATE': 'April 21, 2026',
 
         # Signature + fingerprint + driving forces
