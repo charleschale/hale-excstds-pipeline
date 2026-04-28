@@ -12,12 +12,17 @@ standard Hechler and all new reports must follow.
 
 Convention: `exact N` = count must equal N. `min N` = count must be >= N. `truthy` = boolean non-empty check.
 
-## Section 1 — Targeted Concerns
-- [ ] `class="concern-item"` — min 2 (count is data-driven; a respondent may surface 2, 3, or more concerns)
-- [ ] `class="concern-number"` count equals `class="concern-item"` count (triplet parity)
-- [ ] `class="concern-text"` count equals `class="concern-item"` count (triplet parity)
-- [ ] Concern numbers render 1..N sequentially (no skips)
-- [ ] Each `.concern-text` opens with `<strong>Title.</strong>` pattern (bold lead-in)
+## Section 1 — Top 2 Concerns (now lives inside Interview section, added 2026-04-28, Houston build)
+
+The standalone `<div class="concerns-box">` block has been **removed** from the main report flow. The two concerns are now relocated to the top of the Interview section as a compressed bridge-to-action framing for the Excellence Standards Interview Questions that follow. See METHODOLOGY.md *"Concerns are validation framing for the Interview"* for the structural rule.
+
+- [ ] **Sub-header label is `2 Top Concerns`** (uppercase, no underline). Build script renders it as `<p style="...text-transform: uppercase; ...">2 Top Concerns</p>` inside the Interview section's grid container.
+- [ ] **Concerns are a numbered ordered list** (`<ol>` with two `<li>` items), each ~80 words, full-width across the page.
+- [ ] **Sub-header AND ordered-list wrapper both set `grid-column: 1 / -1;`** to span the full grid width — otherwise the parent `.probes-grid` (auto-fit, minmax 300px) squeezes them into single grid cells alongside the question cards.
+- [ ] **Each concern references specific question numbers** by the canonical Form 8 question name + number (`Facilitative Mindset (question #6)`, `Talent Development (question #2)`, etc.) — the bridge-to-action linkage.
+- [ ] **Concerns do NOT re-prove the diagnostic case.** That case lives in the Signature Pattern + Role-Fit Hard sections upstream. Compressed concerns name: the standards-pattern that identifies the concern, the open seat-fit question, the question numbers that target it.
+- [ ] **No "Validate whether [standard] is real" or "Interview behavior is the test" framing** — see Section 11e (Standards-beat-the-interview principle). Use *"Use [question name] to surface..."* instead of *"Probe [question name] to validate..."*.
+- [ ] Build-script regex check confirms no occurrence of `validate whether` / `interview behavior is the test` / `probe X to determine` in the rendered Concerns content.
 
 ## Section 2 — Headline Metrics (narrow cells)
 - [ ] `.metric-value` contains a **literal number or fraction** for:
@@ -86,9 +91,27 @@ All three canvases must exist and render (confirmed via Puppeteer canvas pixel c
 - [ ] `class="timeline-banner"` — exact 1 (tenure-pattern summary)
 - [ ] Career data sourced from saved LinkedIn file `_pipeline/data/<slug>_linkedin.md` (NEVER inferred/invented — build must fail if LinkedIn data is missing)
 
-## Section 9 — Interview Probes (CRITICAL: Form 8 sourcing)
+## Section 9 — Excellence Standards Interview Questions (CRITICAL: Form 8 sourcing — display label updated 2026-04-28, Houston build)
 
-**Form 8 sourcing is a non-negotiable contract.** Interview probes are drawn VERBATIM from the canonical Form 8 set defined in PROJECT_NOTES.md. They are NOT generated, NOT paraphrased, and NOT substituted. Freelanced probe questions are the failure mode the ExcStds methodology was built to replace. See PROJECT_NOTES.md `## Interview Questions (Form 8) — CRITICAL, NON-NEGOTIABLE` for the full rationale and exception policy.
+**Form 8 sourcing is a non-negotiable contract.** Interview questions are drawn VERBATIM from the canonical Form 8 set defined in PROJECT_NOTES.md. They are NOT generated, NOT paraphrased, and NOT substituted. Freelanced questions are the failure mode the ExcStds methodology was built to replace. See PROJECT_NOTES.md `## Interview Questions (Form 8) — CRITICAL, NON-NEGOTIABLE` for the full rationale and exception policy.
+
+**Display-label update (Houston build 2026-04-28):** the user-facing display labels are now:
+- Section header: *"Interview — Validating the Targeted Concerns"* (was *"Interview Probes: Discovery & Validation"*)
+- Sub-header for the question list: *"Excellence Standards Interview Questions"* (was *"Form 8 Probes (10 questions)"*)
+- The internal taxonomy `FORM8_QUESTIONS` is unchanged — it remains the canonical 10-question source-of-truth set per PROJECT_NOTES.md. Only the user-facing display label changed.
+
+The Interview section now also leads with the *"2 Top Concerns"* sub-section (see Section 1 above). The full Interview-section structure is:
+
+```
+Interview — Validating the Targeted Concerns
+
+  2 TOP CONCERNS                            (uppercase sub-header, no underline, full grid width)
+    1. Concern 1 — full-width, ~80 words
+    2. Concern 2 — full-width, ~80 words
+
+  EXCELLENCE STANDARDS INTERVIEW QUESTIONS  (uppercase sub-header, no underline, full grid width)
+    [10 question cards in their natural grid layout]
+```
 
 ### Structural checks
 
@@ -197,6 +220,49 @@ Renderer (`make_pdf_<slug>.js` / `render_<slug>_pdf.js`) MUST include all of the
   - `.concerns-box h3 + .concern-item`
   - `.section-title + .timeline`, `.section-title + canvas`, `.section-title + p`
 - [ ] After every render, eyeball the PDF for: stranded titles at page bottoms, large trailing whitespace, content split across pages where a small atomic unit (probe-card, concern-item, role-fit column) was bisected.
+
+## Section 11d — Signature Pattern Block (added 2026-04-28, Houston build)
+
+The Signature Pattern block sits between the Recommendation badge and the Three-Axes cards. It is the cohesive prose read of the Excellence-Standards pattern as the file lands for THIS seat type. See METHODOLOGY.md *"Signature Pattern block — cohesive Excellence-Standards read"* for full specification.
+
+- [ ] **Block exists.** `<div class="signature-pattern-box">` (or equivalent token-rendered block) is present, sitting after the recommendation-badge and before the three-axes section.
+- [ ] **Header is `Signature Pattern — Excellence Standards Read`** (or a documented seat-specific variant).
+- [ ] **One-sentence headline** in plain English at the top.
+- [ ] **L1 sub-section first** with sub-header *"Where the L1 standards land negatively"* (uppercase, no underline). Each weak L1 in plain-English form: *"#N L1-Name SCORE — plain-English description."* L2 sub-scores live in the Dimensional Scorecard chart, NOT in this prose.
+- [ ] **Flags sub-section second** with sub-header *"Flags lit"* (uppercase, no underline). Each lit flag named at full universal weight in plain English. Related flags can be grouped.
+- [ ] **Italicized seat-reflection paragraph last** (~80–110 words). Makes an explicit opinion call: *"For [seat type], this profile is **MORE concerning / NEUTRAL / LESS concerning** than the same profile would be in a generic leadership seat."* The "why" anchors in what the function specifically does.
+- [ ] **Plain-English discipline.** Build-script regex check: the L1 and Flags sections contain ZERO occurrences of jargon strings — `replacement-development`, `followership-and-replacement`, raw `L2 X.Y` references, wedge names like `Coordinator/Supporter`, or DF cluster names. Translate to plain language.
+- [ ] **Length target.** Total block 200–300 words. Soft warn at 320, hard fail at 400.
+- [ ] **Standards-universal discipline.** No "dispositive for X seat" or "less relevant for Y seat" phrasing in the L1 or Flags sections. The seat-judgment lives ONLY in the bottom italicized paragraph.
+
+## Section 11e — Three-Axes Card Crispness Rule (added 2026-04-28, Houston build)
+
+Each Three-Axes card body is the **interpretation** — the badge call, in 2–3 tight paragraphs. Supporting evidence lives in the Signature Pattern block, the chart panels, and the Targeted Concerns / Role-Fit sections — NOT in the axis card body.
+
+- [ ] **Talent card target ≤200 words.** Anchored on the holistic three-lens read (consistent promotions / cross-domain greatness / capacity to grow into next altitude).
+- [ ] **Judgment card target ≤200 words.** Anchored on **L1 #8 Organizational Decision Making** specifically, with L2 8.2 Clarity of Accountability and L2 8.7 Facts Over Feelings as the canonical sub-dimensions. **Other lit-flag concerns (Urgency, Conducting, Not Pleasing, etc.) are NOT routed into the Judgment card body** — they live in the Signature Pattern (cohesive read) and Concerns / Role-Fit (interview implications). The Judgment card explicitly notes that other concerns are addressed elsewhere.
+- [ ] **Skills card target ≤120 words.** Domain credentials in one paragraph + wiring-fit conclusion in one short paragraph or sentence pointing to the Wiring-Fit panel below for full read. **No re-rendering of DISC scores, DF clusters, wheel-position descriptions, or wedge labels.**
+- [ ] **Build-script word-count check (qa_gate):** warn at 220 / 220 / 140 words for Talent / Judgment / Skills; fail at 280 / 280 / 180.
+- [ ] **Build-script content check:** Skills card does NOT contain `D=N` or `I=N` or `S=N` or `C=N` numeric DISC patterns (those live in the DISC chart panel only).
+- [ ] **Build-script content check:** Judgment card does NOT enumerate L1 #1, #2, #3, #4, #5, #6, #7, #9 — only L1 #8 plus its sub-L2s. Other L1 references should appear in the Signature Pattern, Concerns, or Role-Fit sections.
+
+## Section 11f — Standards-Beat-the-Interview Principle (added 2026-04-28, Houston build)
+
+The instrument-flagged Excellence-Standards concerns ARE the concerns. Interview questions are tools for surfacing behavioral detail on already-identified concerns, not tests of whether the instrument was right. See METHODOLOGY.md *"Standards-beat-the-interview principle"*.
+
+- [ ] **No "Validate whether [standard] is real" framing** in Concerns or Interview sections.
+- [ ] **No "Interview behavior is the test" framing** anywhere in the rendered HTML.
+- [ ] **No "Probe X to determine if Y is true" framing.** Use *"Use [question name] to surface..."* instead of *"Probe [question name] to validate..."*.
+- [ ] **Build-script regex check (qa_gate):** assert ZERO occurrences of:
+  - `validate whether`
+  - `interview behavior is the test`
+  - `probe X to determine`
+  - `test whether the standard`
+  in the rendered Concerns + Interview-section content.
+- [ ] **Allowed framing patterns:**
+  - *"The signature pattern names a clear [X] gap. Use [question name] to surface the behavioral detail."*
+  - *"Bottom-decile [Y] describes a [Y] gap. Use [question name] to surface a recent specific case."*
+  - *"The open seat-fit question is whether [demonstrated competence] travels to a new company without [the supporting context]."*
 
 ## Section 12 — Data Provenance
 - [ ] L1 scores loaded from respondent `L1` sheet
